@@ -1,0 +1,380 @@
+/* ibm-design base kit — hand-written (NOT generated; build_tokens.mjs never touches it).
+ * Unbranded, framework-free components that follow Carbon conventions, built only from
+ * tokens.css / tokens.lite.css variables. Load order: tokens(.lite).css → type.css → base.css.
+ * Class prefix `ibm-` so it never collides with real Carbon (`cds--`) markup. */
+
+/* ── Accent (one expressive family per piece; default = blue, i.e. "no extra hue").
+   Override per page — see references/color.md → Accent policy. ─────────────────── */
+:root, [data-carbon-theme="white"], [data-carbon-theme="g10"] {
+  --accent: var(--ibm-blue-60); --accent-strong: var(--ibm-blue-70);
+  --accent-field: var(--ibm-blue-10); --accent-graphic: var(--ibm-blue-50);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --accent: var(--ibm-blue-40); --accent-strong: var(--ibm-blue-30);
+  --accent-field: var(--ibm-blue-90); --accent-graphic: var(--ibm-blue-50); } }
+:root[data-theme="dark"], [data-carbon-theme="g90"], [data-carbon-theme="g100"] {
+  --accent: var(--ibm-blue-40); --accent-strong: var(--ibm-blue-30);
+  --accent-field: var(--ibm-blue-90); --accent-graphic: var(--ibm-blue-50);
+}
+
+/* Kit role: the inner glyph ("!") of filled warning icons is dark in every theme (Carbon uses black),
+   because it sits on warning yellow. Use it as --inner / fill of the inner path. */
+:root { --ibm-glyph-on-warning: var(--ibm-black); }
+
+/* ── Reset & document ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--cds-font-sans); font-size: 1rem; line-height: 1.5; font-weight: 400;
+  background: var(--cds-background); color: var(--cds-text-primary);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility;
+}
+/* ── CJK ─────────────────────────────────────────────────────────────────────
+   1. Chinese quotes/dashes/ellipsis (“ ” ‘ ’ — … ·) exist in Plex Sans too, so in Chinese text they'd
+      render narrow and Latin-positioned. This face routes ONLY those code points to Plex Sans SC (local
+      install; the SC files register odd local names: "IBM Plex Sans SC Medm", "…SmBld"). Without a local
+      SC install it silently falls through to the normal stack.
+   2. IBM rule: CJK at 95% of the Latin size, same line height. Apply .ibm-cjk on mixed-language blocks,
+      or multiply sizes by .95 yourself (see typography.md). */
+@font-face { font-family: "IBM Plex Sans SC Punct"; font-weight: 300; src: local("IBM Plex Sans SC Light"), local("IBMPlexSansSC-Light"); unicode-range: U+00B7, U+2014, U+2018-2019, U+201C-201D, U+2026, U+2E3A; }
+@font-face { font-family: "IBM Plex Sans SC Punct"; font-weight: 400; src: local("IBM Plex Sans SC"), local("IBMPlexSansSC"); unicode-range: U+00B7, U+2014, U+2018-2019, U+201C-201D, U+2026, U+2E3A; }
+@font-face { font-family: "IBM Plex Sans SC Punct"; font-weight: 500; src: local("IBM Plex Sans SC Medm"), local("IBMPlexSansSC-Medm"); unicode-range: U+00B7, U+2014, U+2018-2019, U+201C-201D, U+2026, U+2E3A; }
+@font-face { font-family: "IBM Plex Sans SC Punct"; font-weight: 600; src: local("IBM Plex Sans SC SmBld"), local("IBMPlexSansSC-SmBld"); unicode-range: U+00B7, U+2014, U+2018-2019, U+201C-201D, U+2026, U+2E3A; }
+@font-face { font-family: "IBM Plex Sans SC Punct"; font-weight: 700; src: local("IBM Plex Sans SC Bold"), local("IBMPlexSansSC-Bold"); unicode-range: U+00B7, U+2014, U+2018-2019, U+201C-201D, U+2026, U+2E3A; }
+/* Locale stacks live in the font VARIABLES, so every role (sans, serif, mono — eyebrows, quotes, code)
+   resolves to the right CJK face inside a [lang] subtree. :lang() matches EVERY descendant, so it only
+   (re)defines variables; font-family is re-declared just on the element that carries the lang attribute
+   (see the :where([lang]) rule below — zero extra specificity, so .ibm-quote, code, etc. still win). */
+:lang(zh) {
+  --cds-font-sans: "IBM Plex Sans SC Punct", "IBM Plex Sans", "IBM Plex Sans SC", "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", sans-serif;
+  --cds-font-serif: "IBM Plex Sans SC Punct", "IBM Plex Serif", "IBM Plex Sans SC", "Songti SC", serif;
+  --cds-font-mono: "IBM Plex Mono", "IBM Plex Sans SC", monospace;
+  --cds-font-sans-condensed: "IBM Plex Sans Condensed", "IBM Plex Sans SC", sans-serif;
+  letter-spacing: 0; text-spacing-trim: trim-start; line-break: strict;
+}
+:lang(ja), :lang(ko) { letter-spacing: 0; line-break: strict; }
+/* Traditional Chinese / Japanese / Korean: same idea, matching Plex face first (SC would otherwise win for
+   shared Han). Punctuation routing exists only for SC (its local face names are verified); TC/JP/KR
+   punctuation falls back to Plex Sans glyphs. */
+:lang(zh-TW), :lang(zh-HK), :lang(zh-MO), :lang(zh-Hant) {
+  --cds-font-sans: "IBM Plex Sans", "IBM Plex Sans TC", "PingFang TC", "Noto Sans CJK TC", sans-serif;
+  --cds-font-serif: "IBM Plex Serif", "IBM Plex Sans TC", serif;  --cds-font-mono: "IBM Plex Mono", "IBM Plex Sans TC", monospace;
+  --cds-font-sans-condensed: "IBM Plex Sans Condensed", "IBM Plex Sans TC", sans-serif; }
+:lang(ja) {
+  --cds-font-sans: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+  --cds-font-serif: "IBM Plex Serif", "IBM Plex Sans JP", serif;  --cds-font-mono: "IBM Plex Mono", "IBM Plex Sans JP", monospace;
+  --cds-font-sans-condensed: "IBM Plex Sans Condensed", "IBM Plex Sans JP", sans-serif; }
+:lang(ko) {
+  --cds-font-sans: "IBM Plex Sans", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Noto Sans CJK KR", sans-serif;
+  --cds-font-serif: "IBM Plex Serif", "IBM Plex Sans KR", serif;  --cds-font-mono: "IBM Plex Mono", "IBM Plex Sans KR", monospace;
+  --cds-font-sans-condensed: "IBM Plex Sans Condensed", "IBM Plex Sans KR", sans-serif; }
+:where([lang]:lang(zh), [lang]:lang(ja), [lang]:lang(ko)) { font-family: var(--cds-font-sans); }  /* the lang root only, zero specificity: code/pre/.ibm-quote rules still win even with their own lang attribute */
+:lang(zh) .ibm-eyebrow, .ibm-eyebrow:lang(zh) { font-family: var(--cds-font-sans); }  /* Mono spaces/dots look gappy beside Han; numerals can stay Mono via <code> */
+:lang(zh) em, :lang(zh) i { font-style: normal; font-weight: 600; }           /* no CJK italics */
+.ibm-cjk { font-size: .95em; }
+img, svg, video, canvas { display: block; max-width: 100%; }
+h1, h2, h3, h4, h5, h6 { font-weight: 400; text-wrap: balance; }
+h1 { font-size: 2.625rem; line-height: 1.199; font-weight: 300; }   /* heading-06 */
+h2 { font-size: 2rem; line-height: 1.25; }                          /* heading-05 */
+h3 { font-size: 1.25rem; line-height: 1.4; }                        /* heading-03 */
+h4 { font-size: 1rem; line-height: 1.5; font-weight: 600; }        /* heading-02 */
+p, li, dd, figcaption { text-wrap: pretty; }
+small { font-size: 0.75rem; letter-spacing: 0.32px; }
+strong, b { font-weight: 600; }
+code, kbd, samp, pre { font-family: var(--cds-font-mono); font-size: 0.875em; letter-spacing: 0.32px; }
+:not(pre) > code { background: var(--cds-layer-01); padding: 0 0.25rem; }
+pre { background: var(--cds-layer-01); padding: 1rem; overflow-x: auto; line-height: 1.5; }
+hr { border: 0; border-top: 1px solid var(--cds-border-subtle-01); color: inherit; }
+dialog { margin: auto; padding: 0; border: 0; color: inherit; max-width: none; max-height: none; }  /* undo the margin reset: dialogs centre */
+::selection { background: var(--cds-highlight); }
+table { border-collapse: collapse; }
+
+a { color: var(--cds-link-primary); text-decoration: none; }
+a:hover { color: var(--cds-link-primary-hover); text-decoration: underline; }
+a:visited.ibm-link--visited { color: var(--cds-link-visited); }
+p a, li a, td a { text-decoration: underline; text-underline-offset: 0.15em; }
+:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: -2px; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; } }
+
+/* ── 2x Grid ────────────────────────────────────────────────────────────────── */
+.ibm-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 2rem;
+  max-width: 99rem; margin-inline: auto; padding-inline: 1rem;
+}
+@media (min-width: 42rem) { .ibm-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+@media (min-width: 66rem) { .ibm-grid { grid-template-columns: repeat(16, minmax(0, 1fr)); } }
+@media (min-width: 99rem) { .ibm-grid { padding-inline: 1.5rem; } }
+.ibm-grid--narrow { column-gap: 1rem; }
+.ibm-grid--condensed { column-gap: 1px; row-gap: 1px; }
+.ibm-grid > * { grid-column: 1 / -1; min-width: 0; }
+/* span + offset helpers — one set per breakpoint: .sm-N (4 cols, <672px), .md-N (8 cols, 672–1055px),
+   .lg-N (16 cols, ≥1056px); offsets .{bp}-start-N compose with spans: class="lg-8 lg-start-5" = cols 5–12.
+   Where no helper applies at the current breakpoint, the item spans the full row. */
+@media (max-width: 41.99rem) {
+  .ibm-grid > [class*="sm-"] { grid-column: var(--sm-start, auto) / span var(--sm-span, 4); }
+  .sm-1 { --sm-span: 1; } .sm-2 { --sm-span: 2; } .sm-3 { --sm-span: 3; } .sm-4 { --sm-span: 4; }
+  .sm-start-1 { --sm-start: 1; } .sm-start-2 { --sm-start: 2; } .sm-start-3 { --sm-start: 3; } .sm-start-4 { --sm-start: 4; }
+}
+@media (min-width: 42rem) and (max-width: 65.99rem) {
+  .ibm-grid > [class*="md-"] { grid-column: var(--md-start, auto) / span var(--md-span, 8); }
+  .md-1 { --md-span: 1; } .md-2 { --md-span: 2; } .md-3 { --md-span: 3; } .md-4 { --md-span: 4; } .md-5 { --md-span: 5; } .md-6 { --md-span: 6; } .md-7 { --md-span: 7; } .md-8 { --md-span: 8; }
+  .md-start-1 { --md-start: 1; } .md-start-2 { --md-start: 2; } .md-start-3 { --md-start: 3; } .md-start-4 { --md-start: 4; } .md-start-5 { --md-start: 5; } .md-start-6 { --md-start: 6; } .md-start-7 { --md-start: 7; } .md-start-8 { --md-start: 8; }
+}
+@media (min-width: 66rem) {
+  .ibm-grid > [class*="lg-"] { grid-column: var(--lg-start, auto) / span var(--lg-span, 16); }
+  .lg-1 { --lg-span: 1; } .lg-2 { --lg-span: 2; } .lg-3 { --lg-span: 3; } .lg-4 { --lg-span: 4; } .lg-5 { --lg-span: 5; } .lg-6 { --lg-span: 6; } .lg-7 { --lg-span: 7; } .lg-8 { --lg-span: 8; } .lg-9 { --lg-span: 9; } .lg-10 { --lg-span: 10; } .lg-11 { --lg-span: 11; } .lg-12 { --lg-span: 12; } .lg-13 { --lg-span: 13; } .lg-14 { --lg-span: 14; } .lg-15 { --lg-span: 15; } .lg-16 { --lg-span: 16; }
+  .lg-start-1 { --lg-start: 1; } .lg-start-2 { --lg-start: 2; } .lg-start-3 { --lg-start: 3; } .lg-start-4 { --lg-start: 4; } .lg-start-5 { --lg-start: 5; } .lg-start-6 { --lg-start: 6; } .lg-start-7 { --lg-start: 7; } .lg-start-8 { --lg-start: 8; } .lg-start-9 { --lg-start: 9; } .lg-start-10 { --lg-start: 10; } .lg-start-11 { --lg-start: 11; } .lg-start-12 { --lg-start: 12; } .lg-start-13 { --lg-start: 13; } .lg-start-14 { --lg-start: 14; } .lg-start-15 { --lg-start: 15; } .lg-start-16 { --lg-start: 16; }
+}
+
+/* ── Type helpers ───────────────────────────────────────────────────────────── */
+.ibm-eyebrow { font-family: var(--cds-font-mono); font-size: 0.875rem; line-height: 1.43; letter-spacing: 0.32px; color: var(--cds-text-secondary); }
+.ibm-lede { font-size: clamp(1.5rem, 1.2rem + 0.8vw, 2rem); line-height: 1.334; font-weight: 300; }
+.ibm-quote { font-family: var(--cds-font-serif); font-weight: 300; font-size: clamp(2rem, 1.4rem + 2vw, 3.75rem); line-height: 1.2; }
+.ibm-quote em, .ibm-accent-text { color: var(--accent); font-style: normal; }
+.ibm-caption { font-size: 0.75rem; line-height: 1.33; letter-spacing: 0.32px; color: var(--cds-text-secondary); }
+.ibm-num { font-variant-numeric: tabular-nums; }
+.ibm-rule { border: 0; border-top: 8px solid var(--accent-graphic); width: 25%; min-width: 4rem; margin: 0; }
+.ibm-rule--thin { border-top-width: 2px; width: 100%; }
+
+/* ── Buttons (sharp, left-aligned label, icon slot on the right) ─────────────── */
+.ibm-btn {
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 2rem;
+  min-height: 3rem; padding: 0 1rem; min-width: 10rem; max-width: 20rem;
+  font: inherit; font-size: 0.875rem; line-height: 1.29; letter-spacing: 0.16px; text-align: left;
+  border: 1px solid transparent; border-radius: 0; cursor: pointer; text-decoration: none !important;
+  transition: background-color var(--cds-duration-fast-01) var(--cds-easing-standard-productive);
+  background: var(--cds-button-primary); color: var(--cds-text-on-color);
+}
+.ibm-btn:hover { background: var(--cds-button-primary-hover); color: var(--cds-text-on-color); }
+.ibm-btn:active { background: var(--cds-button-primary-active); }
+.ibm-btn:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: -2px; box-shadow: inset 0 0 0 3px var(--cds-focus-inset); }
+.ibm-btn--secondary { background: var(--cds-button-secondary); }
+.ibm-btn--secondary:hover { background: var(--cds-button-secondary-hover); }
+.ibm-btn--tertiary { background: transparent; color: var(--cds-button-tertiary); border-color: var(--cds-button-tertiary); }
+.ibm-btn--tertiary:hover { background: var(--cds-button-tertiary-hover); color: var(--cds-text-inverse); }
+.ibm-btn--ghost { background: transparent; color: var(--cds-link-primary); min-width: 0; padding: 0 1rem; justify-content: flex-start; gap: .5rem; }
+.ibm-btn--ghost:hover { background: var(--cds-background-hover); color: var(--cds-link-primary-hover); }
+.ibm-btn--danger { background: var(--cds-button-danger-primary); }
+.ibm-btn--danger:hover { background: var(--cds-button-danger-hover); }
+.ibm-btn--danger-tertiary { background: transparent; color: var(--cds-button-danger-secondary); border-color: var(--cds-button-danger-secondary); }
+.ibm-btn--danger-tertiary:hover { background: var(--cds-button-danger-hover); color: var(--cds-text-on-color); border-color: transparent; }
+.ibm-btn--danger-ghost { background: transparent; color: var(--cds-button-danger-secondary); min-width: 0; justify-content: flex-start; gap: .5rem; }
+.ibm-btn--danger-ghost:hover { background: var(--cds-button-danger-hover); color: var(--cds-text-on-color); }
+/* pressed states, per variant (keyboard Space/Enter shows these without hover) */
+.ibm-btn--secondary:active { background: var(--cds-button-secondary-active); }
+.ibm-btn--tertiary:active { background: var(--cds-button-tertiary-active); color: var(--cds-text-inverse); }
+.ibm-btn--ghost:active { background: var(--cds-background-active); color: var(--cds-text-primary); }  /* link-blue on the pressed fill drops to 3.2–4.6:1; text-primary passes on every theme and layer */
+.ibm-btn--danger:active, .ibm-btn--danger-tertiary:active, .ibm-btn--danger-ghost:active { background: var(--cds-button-danger-active); color: var(--cds-text-on-color); border-color: transparent; }
+.ibm-btn--md { min-height: 2.5rem; } .ibm-btn--sm { min-height: 2rem; }
+.ibm-btn[disabled] { background: var(--cds-button-disabled); color: var(--cds-text-on-color-disabled); cursor: not-allowed; border-color: transparent; }
+.ibm-btn svg { width: 1rem; height: 1rem; fill: currentColor; flex: none; }
+.ibm-btn-set { display: flex; gap: 1px; flex-wrap: wrap; }
+
+/* ── Tags (the one rounded thing) ───────────────────────────────────────────── */
+.ibm-tag {
+  display: inline-flex; align-items: center; gap: 0.25rem; min-height: 1.5rem; padding: 0 0.5rem;
+  border-radius: 1rem; font-size: 0.75rem; line-height: 1.33; letter-spacing: 0.32px; white-space: nowrap;
+  background: var(--cds-tag-background-gray, var(--cds-layer-accent-01)); color: var(--cds-tag-color-gray, var(--cds-text-primary));
+}
+.ibm-tag[data-color="blue"]    { background: var(--cds-tag-background-blue, var(--ibm-blue-20)); color: var(--cds-tag-color-blue, var(--ibm-blue-70)); }
+.ibm-tag[data-color="purple"]  { background: var(--cds-tag-background-purple, var(--ibm-purple-20)); color: var(--cds-tag-color-purple, var(--ibm-purple-70)); }
+.ibm-tag[data-color="teal"]    { background: var(--cds-tag-background-teal, var(--ibm-teal-20)); color: var(--cds-tag-color-teal, var(--ibm-teal-70)); }
+.ibm-tag[data-color="cyan"]    { background: var(--cds-tag-background-cyan, var(--ibm-cyan-20)); color: var(--cds-tag-color-cyan, var(--ibm-cyan-70)); }
+.ibm-tag[data-color="magenta"] { background: var(--cds-tag-background-magenta, var(--ibm-magenta-20)); color: var(--cds-tag-color-magenta, var(--ibm-magenta-70)); }
+.ibm-tag[data-color="green"]   { background: var(--cds-tag-background-green, var(--ibm-green-20)); color: var(--cds-tag-color-green, var(--ibm-green-70)); }
+.ibm-tag[data-color="red"]     { background: var(--cds-tag-background-red, var(--ibm-red-20)); color: var(--cds-tag-color-red, var(--ibm-red-70)); }
+
+/* ── Tiles & cards (flat, layered) ──────────────────────────────────────────── */
+.ibm-tile { display: block; background: var(--cds-layer-01); color: inherit; padding: 1rem; min-height: 4rem; }
+.ibm-tile .ibm-tile { background: var(--cds-layer-02); }
+a.ibm-tile, .ibm-tile--clickable { text-decoration: none !important; transition: background-color var(--cds-duration-fast-02) var(--cds-easing-standard-productive); }
+a.ibm-tile:hover, .ibm-tile--clickable:hover { background: var(--cds-layer-hover-01); color: inherit; }
+.ibm-tile--outline { background: transparent; border: 1px solid var(--cds-border-tile-01); }
+.ibm-tile--accent { background: var(--accent-field); }
+.ibm-kpi { font-size: 2.625rem; line-height: 1.19; font-weight: 300; font-variant-numeric: tabular-nums; }
+.ibm-kpi-label { font-size: 0.875rem; line-height: 1.29; letter-spacing: 0.16px; color: var(--cds-text-secondary); }
+
+/* ── Forms: label above, fill + bottom border ───────────────────────────────── */
+.ibm-field { display: grid; gap: 0.5rem; }
+.ibm-field > label { font-size: 0.75rem; line-height: 1.33; letter-spacing: 0.32px; color: var(--cds-text-secondary); }
+.ibm-input, .ibm-select {
+  height: 2.5rem; padding: 0 1rem; font: inherit; font-size: 0.875rem; letter-spacing: 0.16px; width: 100%;
+  background: var(--cds-field-01); color: var(--cds-text-primary);
+  border: 0; border-bottom: 1px solid var(--cds-border-strong-01); border-radius: 0; outline: 2px solid transparent; outline-offset: -2px;
+}
+.ibm-tile .ibm-input, .ibm-tile .ibm-select { background: var(--cds-field-02); }
+.ibm-input::placeholder { color: var(--cds-text-placeholder); }
+.ibm-input:hover, .ibm-select:hover { background: var(--cds-field-hover-01); }
+.ibm-tile .ibm-input:hover, .ibm-tile .ibm-select:hover { background: var(--cds-field-hover-02); }
+.ibm-input:focus, .ibm-select:focus { outline-color: var(--cds-focus); }
+.ibm-input[aria-invalid="true"], .ibm-select[aria-invalid="true"] { outline: 2px solid var(--cds-support-error); }
+.ibm-input[aria-invalid="true"]:focus, .ibm-select[aria-invalid="true"]:focus { outline-color: var(--cds-focus); }  /* focus stays distinguishable; the error text + icon carry the error */
+.ibm-select { appearance: none; padding-right: 3rem; cursor: pointer; }
+.ibm-select-wrap { position: relative; }  /* wrap a .ibm-select to get the chevron */
+.ibm-select-wrap::after { content: ""; position: absolute; right: 1.1rem; top: 50%; width: .45rem; height: .45rem; pointer-events: none;
+  border-right: 1.5px solid var(--cds-icon-primary); border-bottom: 1.5px solid var(--cds-icon-primary); transform: translateY(-70%) rotate(45deg); }
+textarea.ibm-input { height: auto; min-height: 6rem; padding-block: .6875rem; resize: vertical; }
+
+/* fieldset, checkbox, radio, toggle — native inputs restyled; keyboard focus = 2px focus ring */
+.ibm-fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: .5rem; min-width: 0; }
+.ibm-fieldset > legend { font-size: .75rem; line-height: 1.33; letter-spacing: .32px; color: var(--cds-text-secondary); margin-bottom: .5rem; padding: 0; }
+.ibm-checkbox, .ibm-radio, .ibm-toggle { display: inline-flex; align-items: flex-start; gap: .5rem; font-size: .875rem; line-height: 1.29; letter-spacing: .16px; cursor: pointer; }
+.ibm-checkbox input, .ibm-radio input { appearance: none; flex: none; width: 1rem; height: 1rem; margin: .0625rem 0 0; display: grid; place-content: center;
+  border: 1px solid var(--cds-icon-primary); background: transparent; cursor: pointer; }
+.ibm-checkbox input { border-radius: 1px; }
+.ibm-checkbox input:checked, .ibm-checkbox input:indeterminate { background: var(--cds-icon-primary); }
+.ibm-checkbox input:checked::after { content: ""; width: .55rem; height: .3rem; margin-top: -.125rem; border-left: 2px solid var(--cds-icon-inverse); border-bottom: 2px solid var(--cds-icon-inverse); transform: rotate(-45deg); }
+.ibm-checkbox input:indeterminate::after { content: ""; width: .5rem; border-top: 2px solid var(--cds-icon-inverse); }
+.ibm-radio input { border-radius: 50%; }
+.ibm-radio input:checked::after { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: var(--cds-icon-primary); }
+.ibm-toggle input { appearance: none; flex: none; position: relative; width: 3rem; height: 1.5rem; margin: 0; border-radius: .75rem; background: var(--cds-toggle-off, var(--cds-border-strong-01)); cursor: pointer;
+  transition: background-color var(--cds-duration-fast-02) var(--cds-easing-standard-productive); }
+.ibm-toggle input::before { content: ""; position: absolute; top: .1875rem; left: .1875rem; width: 1.125rem; height: 1.125rem; border-radius: 50%; background: var(--cds-icon-on-color);
+  transition: transform var(--cds-duration-fast-02) var(--cds-easing-standard-productive); }
+.ibm-toggle input:checked { background: var(--cds-support-success); }
+.ibm-toggle input:checked::before { transform: translateX(1.5rem); }
+.ibm-checkbox input:focus-visible, .ibm-radio input:focus-visible, .ibm-toggle input:focus-visible { outline: 2px solid var(--cds-focus); outline-offset: 1px; }
+.ibm-checkbox input:disabled, .ibm-radio input:disabled, .ibm-toggle input:disabled { border-color: var(--cds-icon-disabled); cursor: not-allowed; }
+.ibm-helper { font-size: 0.75rem; line-height: 1.33; letter-spacing: 0.32px; color: var(--cds-text-helper); }
+.ibm-helper--error { color: var(--cds-text-error); }
+
+/* ── Notifications: status color + icon + words, never color alone ──────────── */
+.ibm-notification {
+  display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.875rem 1rem; max-width: 50rem;
+  border-left: 3px solid var(--cds-support-info); background: var(--cds-notification-background-info, var(--cds-layer-01));
+  color: var(--cds-text-primary); font-size: 0.875rem; line-height: 1.43; letter-spacing: 0.16px;
+}
+/* only the leading status icon takes the status colour; other icons inside (copy, close) stay neutral */
+.ibm-notification > svg:first-child { flex: none; width: 1.25rem; height: 1.25rem; fill: var(--cds-support-info); }
+.ibm-notification strong { font-weight: 600; }
+.ibm-notification[data-kind="error"]   { border-color: var(--cds-support-error);   background: var(--cds-notification-background-error, var(--cds-layer-01)); }
+.ibm-notification[data-kind="error"] > svg:first-child { fill: var(--cds-support-error); }
+.ibm-notification[data-kind="success"] { border-color: var(--cds-support-success); background: var(--cds-notification-background-success, var(--cds-layer-01)); }
+.ibm-notification[data-kind="success"] > svg:first-child { fill: var(--cds-support-success); }
+.ibm-notification[data-kind="warning"] { border-color: var(--cds-support-warning); background: var(--cds-notification-background-warning, var(--cds-layer-01)); }
+.ibm-notification[data-kind="warning"] > svg:first-child { fill: var(--cds-support-warning); }
+
+/* ── Data table ─────────────────────────────────────────────────────────────── */
+.ibm-table { width: 100%; font-size: 0.875rem; line-height: 1.29; letter-spacing: 0.16px; font-variant-numeric: tabular-nums; }
+.ibm-table th { text-align: left; font-weight: 600; background: var(--cds-layer-accent-01); height: 3rem; padding: 0 1rem; color: var(--cds-text-primary); }
+.ibm-table td { height: 3rem; padding: 0 1rem; border-top: 1px solid var(--cds-border-subtle-01); color: var(--cds-text-secondary); background: var(--cds-layer-01); }
+.ibm-table tbody tr:hover td { background: var(--cds-layer-hover-01); color: var(--cds-text-primary); }
+.ibm-table .ibm-num, .ibm-table td[data-num] { text-align: right; }
+.ibm-table--compact th, .ibm-table--compact td { height: 2rem; }
+.ibm-table-wrap, .ibm-scroll-x { overflow-x: auto; }
+.ibm-scroll-x > svg { min-width: var(--min-w, 560px); }  /* charts: keep labels legible on phones by scrolling instead of shrinking */
+
+/* ── UI shell header ────────────────────────────────────────────────────────── */
+.ibm-header {
+  position: sticky; top: 0; z-index: 10; display: flex; align-items: center; height: 3rem;
+  background: var(--cds-background); border-bottom: 1px solid var(--cds-border-subtle-01);
+}
+.ibm-header__name { padding: 0 2rem 0 1rem; font-size: 0.875rem; letter-spacing: 0.1px; font-weight: 400; color: var(--cds-text-primary); white-space: nowrap; }
+.ibm-header__name b { font-weight: 600; }
+.ibm-header__nav { display: flex; height: 100%; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.ibm-header__nav::-webkit-scrollbar { display: none; }
+.ibm-header__nav a { flex: none; }
+@media (max-width: 41.99rem) { .ibm-header__name { padding-right: 1rem; } }
+.ibm-header__nav a { display: flex; align-items: center; padding: 0 1rem; height: 100%; font-size: 0.875rem; color: var(--cds-text-secondary); text-decoration: none; }
+.ibm-header__nav a:hover { background: var(--cds-background-hover); color: var(--cds-text-primary); }
+.ibm-header__nav a[aria-current="page"] { color: var(--cds-text-primary); box-shadow: inset 0 -3px 0 var(--cds-border-interactive); }
+.ibm-header__actions { margin-left: auto; display: flex; height: 100%; flex: none; }
+.ibm-icon-btn { display: inline-grid; place-items: center; width: 3rem; height: 3rem; background: transparent; border: 0; color: var(--cds-icon-primary); cursor: pointer; }
+.ibm-icon-btn:hover { background: var(--cds-background-hover); }
+.ibm-icon-btn svg { width: 1.25rem; height: 1.25rem; fill: currentColor; }
+
+
+/* Collapsible header for phones: add class ibm-header--collapsible and a menu button
+   <button class="ibm-icon-btn ibm-header__menu" aria-label="Menu" aria-expanded="false"
+     onclick="const h=this.closest('.ibm-header');this.setAttribute('aria-expanded',h.toggleAttribute('data-nav-open'))">…menu icon…</button>
+   Below 672px the nav folds into a panel under the header (Carbon folds header nav into the side nav). */
+.ibm-header__menu { display: none; }
+@media (max-width: 41.99rem) {
+  .ibm-header--collapsible .ibm-header__menu { display: inline-grid; }
+  .ibm-header--collapsible .ibm-header__nav { display: none; }
+  .ibm-header--collapsible[data-nav-open] .ibm-header__nav { display: grid; position: absolute; top: 3rem; left: 0; right: 0; height: auto; background: var(--cds-layer-01); border-bottom: 1px solid var(--cds-border-subtle-01); }
+  .ibm-header--collapsible[data-nav-open] .ibm-header__nav a { height: 3rem; }
+  .ibm-header--collapsible[data-nav-open] .ibm-header__nav a[aria-current="page"] { box-shadow: inset 3px 0 0 var(--cds-border-interactive); }
+}
+
+/* ── Side nav (settings, docs): selected item = 3px interactive bar + selected layer ── */
+.ibm-sidenav { display: grid; align-content: start; padding-block: 1rem; background: var(--cds-layer-01); }
+.ibm-sidenav__title { padding: .5rem 1rem; font-size: .75rem; letter-spacing: .32px; color: var(--cds-text-secondary); }
+.ibm-sidenav a { display: flex; align-items: center; min-height: 2rem; padding: .375rem 1rem; font-size: .875rem; line-height: 1.29; letter-spacing: .16px;
+  color: var(--cds-text-secondary); text-decoration: none; border-left: 3px solid transparent; }
+.ibm-sidenav a:hover { background: var(--cds-layer-hover-01); color: var(--cds-text-primary); }
+.ibm-sidenav a[aria-current="page"] { border-left-color: var(--cds-border-interactive); background: var(--cds-layer-selected-01); color: var(--cds-text-primary); font-weight: 600; }
+@media (max-width: 41.99rem) {  /* phones: becomes a scrolling tab strip */
+  .ibm-sidenav { display: flex; overflow-x: auto; padding: 0; scrollbar-width: none; }
+  .ibm-sidenav__title { display: none; }
+  .ibm-sidenav a { flex: none; min-height: 3rem; border-left: 0; border-bottom: 3px solid transparent; }
+  .ibm-sidenav a[aria-current="page"] { border-bottom-color: var(--cds-border-interactive); }
+}
+
+/* ── Page header: eyebrow + title + description on the left, actions on the right ── */
+.ibm-page-header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1rem 2rem; padding-block: 2rem 1.5rem; }
+.ibm-page-header__title { font-size: 2rem; line-height: 1.25; font-weight: 400; margin-top: .25rem; }
+.ibm-page-header__desc { margin-top: .5rem; font-size: .875rem; line-height: 1.43; letter-spacing: .16px; color: var(--cds-text-secondary); max-width: 40rem; }
+
+/* ── Modal (use <dialog class="ibm-modal"> + showModal()). Footer: secondary LEFT, primary RIGHT, buttons fill it. ── */
+.ibm-modal { width: min(48rem, calc(100vw - 2rem)); background: var(--cds-layer-01); color: var(--cds-text-primary); box-shadow: 0 2px 6px var(--cds-shadow); }
+.ibm-modal--sm { width: min(32rem, calc(100vw - 2rem)); }
+.ibm-modal::backdrop { background: var(--cds-overlay); }
+.ibm-modal__header { position: relative; padding: 1rem 3rem .5rem 1rem; }
+.ibm-modal__label { font-size: .75rem; letter-spacing: .32px; color: var(--cds-text-secondary); }
+.ibm-modal__title { font-size: 1.25rem; line-height: 1.4; font-weight: 400; margin-top: .25rem; }
+.ibm-modal__close { position: absolute; top: 0; right: 0; }
+.ibm-modal__body { padding: .5rem 1rem 3rem; font-size: .875rem; line-height: 1.43; letter-spacing: .16px; display: grid; gap: 1rem; }
+.ibm-modal__footer { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 1px; }
+.ibm-modal__footer .ibm-btn { max-width: none; min-height: 4rem; align-items: flex-start; padding-top: 1rem; }
+@media (max-width: 41.99rem) { .ibm-modal__footer { grid-auto-flow: row; } }
+
+/* ── Code snippet / copyable value ──────────────────────────────────────────── */
+.ibm-snippet { display: flex; align-items: center; min-height: 2.5rem; background: var(--cds-layer-01); max-width: 100%; }
+.ibm-snippet code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; background: none; padding: .625rem 1rem; font-size: .875rem; }
+.ibm-snippet .ibm-icon-btn { width: 2.5rem; height: 2.5rem; flex: none; }
+.ibm-snippet .ibm-icon-btn svg { width: 1rem; height: 1rem; }
+
+/* ── Table that stacks into label/value cards on phones: add data-label="…" to each td ── */
+@media (max-width: 41.99rem) {
+  .ibm-table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .ibm-table--stack tr { display: block; border-top: 1px solid var(--cds-border-subtle-01); background: var(--cds-layer-01); padding-block: .5rem; }
+  .ibm-table--stack td { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; height: auto; padding: .375rem 1rem; border: 0; text-align: left !important; }
+  .ibm-table--stack td::before { content: attr(data-label); font-size: .75rem; letter-spacing: .32px; color: var(--cds-text-helper); }
+  .ibm-table--stack td > * { justify-self: start; }
+}
+
+/* ── Slides & fixed canvases (1920×1080). IBM video grid: 8 columns, 90px margins, 30px gutters,
+   sizes in steps of 30 (7.5px mini unit). Type here is FIXED px from the Carbon scale — never use
+   fluid classes (they read the viewport) on a fixed canvas. Pair with @page in the deck file. ── */
+.ibm-slide { position: relative; width: 1920px; height: 1080px; overflow: hidden; break-after: page; page-break-after: always;
+  display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: auto 1fr auto; column-gap: 30px; row-gap: 30px;
+  padding: 90px; background: var(--cds-background); color: var(--cds-text-primary); }
+.ibm-slide > * { grid-column: 1 / -1; min-width: 0; }
+.ibm-slide > [class*="sl-"] { grid-column: var(--sl-start, auto) / span var(--sl-span, 8); }
+.sl-1 { --sl-span: 1; } .sl-2 { --sl-span: 2; } .sl-3 { --sl-span: 3; } .sl-4 { --sl-span: 4; } .sl-5 { --sl-span: 5; } .sl-6 { --sl-span: 6; } .sl-7 { --sl-span: 7; } .sl-8 { --sl-span: 8; }
+.sl-start-1 { --sl-start: 1; } .sl-start-2 { --sl-start: 2; } .sl-start-3 { --sl-start: 3; } .sl-start-4 { --sl-start: 4; } .sl-start-5 { --sl-start: 5; } .sl-start-6 { --sl-start: 6; } .sl-start-7 { --sl-start: 7; }
+.ibm-slide__body { align-self: start; }
+.ibm-slide__bottom { align-self: end; }
+.ibm-slide__footer { grid-column: 1 / -1; grid-row: 3; align-self: end; display: flex; justify-content: space-between; gap: 30px;
+  font-family: var(--cds-font-mono); font-size: 20px; line-height: 30px; letter-spacing: .32px; color: var(--cds-text-secondary); }
+.ibm-s-eyebrow   { font-family: var(--cds-font-mono); font-size: 24px; line-height: 30px; letter-spacing: .32px; color: var(--cds-text-secondary); }
+.ibm-s-display   { font-size: 122px; line-height: 130px; font-weight: 300; letter-spacing: -1px; }
+.ibm-s-title     { font-size: 76px; line-height: 86px; font-weight: 300; }
+.ibm-s-statement { font-size: 60px; line-height: 70px; font-weight: 300; }
+.ibm-s-heading   { font-size: 42px; line-height: 50px; font-weight: 400; }
+.ibm-s-body      { font-size: 28px; line-height: 40px; font-weight: 400; }
+.ibm-s-caption   { font-size: 20px; line-height: 30px; letter-spacing: .16px; color: var(--cds-text-secondary); }
+.ibm-s-number    { font-size: 156px; line-height: 164px; font-weight: 300; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.ibm-s-quote     { font-family: var(--cds-font-serif); font-size: 60px; line-height: 70px; font-weight: 300; }
+.ibm-s-number em, .ibm-s-display em, .ibm-s-title em, .ibm-s-quote em, .ibm-s-statement em { font-style: normal; color: var(--accent); }
+.ibm-s-picto     { width: 240px; height: 240px; fill: var(--accent-strong); }
+
+/* ── Section rhythm for pages ───────────────────────────────────────────────── */
+.ibm-section { padding-block: clamp(3rem, 2rem + 4vw, 6rem); }
+.ibm-section + .ibm-section { border-top: 1px solid var(--cds-border-subtle-01); }
+[data-carbon-theme].ibm-section + .ibm-section, .ibm-section + [data-carbon-theme].ibm-section { border-top: 0; }
+.ibm-stack > * + * { margin-top: var(--stack, 1rem); }
+.ibm-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

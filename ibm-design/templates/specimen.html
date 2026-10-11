@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IBM Design Specimen</title>
+<!-- Fonts: Google Fonts for the Latin families; Plex Sans SC via jsDelivr (drop that link inside claude.ai artifacts) -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Serif:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=IBM+Plex+Sans+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans-sc@1.1.0/fonts/split/woff2/hinted/IBMPlexSansSC-Regular.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans-sc@1.1.0/fonts/split/woff2/hinted/IBMPlexSansSC-SemiBold.css">
+<link rel="stylesheet" href="ibm/tokens.css">
+<link rel="stylesheet" href="ibm/type.css">
+<link rel="stylesheet" href="ibm/base.css">
+<style>
+  .spec-head { padding-block: 6rem 3rem; }
+  .spec-head h1 { margin-top: 1.5rem; }
+  .spec-nav { display: flex; flex-wrap: wrap; gap: 0 1.5rem; margin-top: 2rem; }
+  .spec-nav a { font-size: .875rem; }
+  .spec-h2 { margin-bottom: 2rem; }
+  .row { display: grid; grid-template-columns: 9rem 1fr; gap: 1rem; align-items: baseline; padding-block: .75rem; border-top: 1px solid var(--cds-border-subtle-01); }
+  .row .k { font-family: var(--cds-font-mono); font-size: .75rem; letter-spacing: .32px; color: var(--cds-text-secondary); }
+  .row .v { overflow-wrap: anywhere; }
+  .fam .row .v { font-size: 2rem; line-height: 1.25; }
+  .fam { margin-bottom: 4rem; }
+  .fam h3 { margin-bottom: .5rem; }
+  .fam p.role { color: var(--cds-text-secondary); margin-bottom: 1rem; max-width: 40rem; }
+  .swatches { display: grid; grid-template-columns: 7rem repeat(10, minmax(0, 1fr)); gap: 0; }
+  .swatches .lbl { font-family: var(--cds-font-mono); font-size: .75rem; line-height: 3rem; color: var(--cds-text-secondary); }
+  .swatches .sw { height: 3rem; position: relative; overflow: hidden; }
+  .swatches .sw span { position: absolute; left: .25rem; bottom: .2rem; font: 400 .625rem/1 var(--cds-font-mono); opacity: 0; }
+  .swatches:hover .sw span { opacity: 1; }
+  .themes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 1rem; }
+  .theme { padding: 1.5rem 1rem 1rem; }
+  .theme h3 { margin-bottom: 1rem; }
+  .theme .ibm-tile { margin-bottom: .5rem; }
+  .tok { display: grid; grid-template-columns: 1rem 1fr auto; gap: .5rem; align-items: center; font: 400 .75rem/1.8 var(--cds-font-mono); }
+  .tok i { width: 1rem; height: 1rem; outline: 1px solid var(--cds-border-subtle-01); }
+  .strip { display: flex; height: 3rem; margin-bottom: .25rem; }
+  .strip i { flex: 1; }
+  .strip-label { font: 400 .75rem/1.5 var(--cds-font-mono); color: var(--cds-text-secondary); margin-bottom: 1.25rem; }
+  .space { display: flex; align-items: center; gap: 1rem; padding-block: .25rem; font: 400 .75rem/1.5 var(--cds-font-mono); }
+  .space b { display: block; height: 1rem; background: var(--accent-graphic); }
+  .icons { display: flex; flex-wrap: wrap; gap: 2rem; color: var(--cds-icon-primary); }
+  .icons svg { width: 2rem; height: 2rem; fill: currentColor; }
+</style>
+</head>
+<body>
+<header class="ibm-header">
+  <span class="ibm-header__name">Design <b>Specimen</b></span>
+  <nav class="ibm-header__nav" aria-label="Sections">
+    <a href="#type">Type</a><a href="#color">Color</a><a href="#data">Data</a><a href="#space">Space</a>
+  </nav>
+</header>
+
+<main>
+<section class="ibm-grid spec-head">
+  <div class="lg-12">
+    <p class="ibm-eyebrow">ibm-design · living specimen</p>
+    <h1 class="cds--type-fluid-display-04">Plex, the palette and the grid</h1>
+    <p class="ibm-lede" style="margin-top:1.5rem;max-width:44rem;color:var(--cds-text-secondary)">Every value on this page is read from <code>tokens.css</code> at load time, so it always shows the current token build.</p>
+  </div>
+</section>
+
+<!-- ── TYPE ─────────────────────────────────────────────────────────────── -->
+<section id="type" class="ibm-section ibm-grid">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Type families</h2>
+  <div id="families"></div>
+  <div class="lg-16" style="margin-top:2rem">
+    <h3 style="margin-bottom:1rem">Chinese — IBM Plex Sans SC</h3>
+    <p lang="zh-CN" style="font-size:2rem;line-height:1.5;font-weight:300">设计语言是一套共享的视觉语法</p>
+    <p lang="zh-CN" style="font-size:2rem;line-height:1.5;font-weight:600">网格、字体与色彩共同构成秩序</p>
+    <p lang="zh-CN" style="max-width:40rem;margin-top:1rem;color:var(--cds-text-secondary)">中文正文使用 Plex Sans SC，行高约 1.75，不使用斜体；强调用半粗体。Latin words and 2026 digits stay in Plex Sans.</p>
+  </div>
+</section>
+
+<section class="ibm-section ibm-grid scale">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Type sets</h2>
+  <div class="lg-16" id="scale"></div>
+</section>
+
+<!-- ── COLOR ────────────────────────────────────────────────────────────── -->
+<section id="color" class="ibm-section ibm-grid">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Primitive palette</h2>
+  <div class="lg-16" id="palette" data-viz></div>
+</section>
+
+<section class="ibm-section ibm-grid">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Themes and layers</h2>
+  <div class="lg-16 themes" id="themes" data-viz></div>
+</section>
+
+<!-- ── DATA ─────────────────────────────────────────────────────────────── -->
+<section id="data" class="ibm-section ibm-grid">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Data palettes</h2>
+  <div class="lg-8" id="data-light" data-viz></div>
+  <div class="lg-8" id="data-dark" data-carbon-theme="g100" style="padding:1rem" data-viz></div>
+</section>
+
+<!-- ── SPACE & ICONS ────────────────────────────────────────────────────── -->
+<section id="space" class="ibm-section ibm-grid">
+  <h2 class="spec-h2 cds--type-fluid-heading-05">Spacing</h2>
+  <div class="lg-8" id="spacing"></div>
+  <div class="lg-8">
+    <h3 style="margin-bottom:1.5rem">Components from base.css</h3>
+    <div class="ibm-btn-set"><a class="ibm-btn" href="#">Primary <svg viewBox="0 0 32 32"><path d="M18 6 16.57 7.393 24.15 15 4 15 4 17 24.15 17 16.57 24.573 18 26 28 16 18 6z"/></svg></a><a class="ibm-btn ibm-btn--secondary" href="#">Secondary</a></div>
+    <p style="margin-top:1rem"><a class="ibm-btn ibm-btn--tertiary" href="#">Tertiary</a> <a class="ibm-btn ibm-btn--ghost" href="#">Ghost</a></p>
+    <p style="margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap" data-viz><span class="ibm-tag">Gray</span><span class="ibm-tag" data-color="blue">Blue</span><span class="ibm-tag" data-color="purple">Purple</span><span class="ibm-tag" data-color="teal">Teal</span><span class="ibm-tag" data-color="green">Healthy</span><span class="ibm-tag" data-color="red">Failed</span></p>
+    <div class="ibm-field" style="margin-top:1.5rem;max-width:20rem"><label for="f1">Label</label><input id="f1" class="ibm-input" placeholder="Placeholder"><span class="ibm-helper">Helper text</span></div>
+    <div class="ibm-field" style="margin-top:1.5rem;max-width:20rem"><label for="f2">Select</label><div class="ibm-select-wrap"><select id="f2" class="ibm-select"><option>Option one</option><option>Option two</option></select></div></div>
+    <fieldset class="ibm-fieldset" style="margin-top:1.5rem"><legend>Choices</legend>
+      <label class="ibm-checkbox"><input type="checkbox" checked> Checkbox</label>
+      <label class="ibm-radio"><input type="radio" name="r" checked> Radio one</label>
+      <label class="ibm-radio"><input type="radio" name="r"> Radio two</label>
+      <label class="ibm-toggle"><input type="checkbox" role="switch" checked> Toggle</label>
+    </fieldset>
+    <div class="ibm-snippet" style="margin-top:1.5rem;max-width:24rem"><code>npm i @carbon/themes</code><button class="ibm-icon-btn" aria-label="Copy"><svg viewBox="0 0 32 32"><path d="M28,10V28H10V10H28m0-2H10a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V10a2,2,0,0,0-2-2Z"/><path d="M4,18H2V4A2,2,0,0,1,4,2H18V4H4Z"/></svg></button></div>
+    <p style="margin-top:1.5rem;display:flex;gap:1px;flex-wrap:wrap"><button class="ibm-btn ibm-btn--danger-tertiary ibm-btn--md" onclick="document.getElementById('dlg').showModal()">Delete…</button><button class="ibm-btn ibm-btn--danger-ghost ibm-btn--md">Revoke</button></p>
+    <dialog id="dlg" class="ibm-modal ibm-modal--sm">
+      <div class="ibm-modal__header"><p class="ibm-modal__label">Project settings</p><h2 class="ibm-modal__title">Delete project “atlas”?</h2>
+        <button class="ibm-icon-btn ibm-modal__close" aria-label="Close" onclick="this.closest('dialog').close()"><svg viewBox="0 0 32 32"><path d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"/></svg></button></div>
+      <div class="ibm-modal__body"><p>All 14 notebooks and their history are removed. This can't be undone.</p></div>
+      <div class="ibm-modal__footer"><button class="ibm-btn ibm-btn--secondary" onclick="this.closest('dialog').close()">Cancel</button><button class="ibm-btn ibm-btn--danger">Delete project</button></div>
+    </dialog>
+    <div class="ibm-notification" data-kind="success" style="margin-top:1.5rem"><svg viewBox="0 0 32 32"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2ZM14,21.5908l-5-5L10.5906,15,14,18.4092,21.41,11l1.5957,1.5859Z"/></svg><div><strong>Saved.</strong> Status color, icon and words together.</div></div>
+  </div>
+</section>
+</main>
+
+<script>
+const css = getComputedStyle(document.documentElement);
+const v = (n, el = document.documentElement) => getComputedStyle(el).getPropertyValue(n).trim();
+
+// families
+const FAM = [
+  ['IBM Plex Sans', 'var(--cds-font-sans)', 'The default voice — UI, body, headlines, data labels.', true],
+  ['IBM Plex Serif', 'var(--cds-font-serif)', 'Editorial — long-form, display with gravitas, quotations.', true],
+  ['IBM Plex Mono', 'var(--cds-font-mono)', 'Code, values, IDs, timestamps, technical eyebrows.', true],
+  ['IBM Plex Sans Condensed', 'var(--cds-font-sans-condensed)', 'Dense tables, narrow columns, chart labels.', true],
+];
+const W = [[100, 'Thin'], [200, 'ExtraLight'], [300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'SemiBold'], [700, 'Bold']];
+document.getElementById('families').innerHTML = FAM.map(([name, ff, role]) => `
+  <div class="fam lg-16"><h3>${name}</h3><p class="role">${role}</p>
+  ${W.map(([w, n]) => `<div class="row"><span class="k">${w} ${n}</span><span class="v" style="font-family:${ff};font-weight:${w}">Agile minds build <i>quietly</i> 0123</span></div>`).join('')}
+  </div>`).join('');
+
+// type sets — read from the type.css classes
+const SETS = [['Productive', ['label-01', 'body-compact-01', 'body-01', 'body-02', 'heading-01', 'heading-02', 'heading-03', 'heading-04', 'heading-05', 'heading-06', 'heading-07', 'code-02']],
+              ['Expressive (fluid — resize the window)', ['fluid-paragraph-01', 'fluid-quotation-01', 'fluid-quotation-02', 'fluid-heading-05', 'fluid-display-01', 'fluid-display-04']]];
+document.getElementById('scale').innerHTML = SETS.map(([t, list]) => `<h3 style="margin:2rem 0 1rem">${t}</h3>` + list.map((c) =>
+  `<div class="row"><span class="k">${c}<br><span data-m="${c}"></span></span><span class="v cds--type-${c}">The grid keeps its promises</span></div>`).join('')).join('');
+document.querySelectorAll('[data-m]').forEach((s) => { const el = s.closest('.row').querySelector('.v'); const cs = getComputedStyle(el); s.textContent = `${parseFloat(cs.fontSize)}/${Math.round(parseFloat(cs.lineHeight))} ${cs.fontWeight}`; });
+
+// palette
+const FAMS = ['red', 'magenta', 'purple', 'blue', 'cyan', 'teal', 'green', 'gray', 'cool-gray', 'warm-gray', 'yellow', 'orange'];
+const G = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+document.getElementById('palette').innerHTML = `<div class="swatches"><span></span>${G.map((g) => `<span class="lbl">${g}</span>`).join('')}</div>` + FAMS.map((f) =>
+  `<div class="swatches"><span class="lbl">${f}</span>${G.map((g) => { const h = v(`--ibm-${f}-${g}`); return `<i class="sw" style="background:${h}" title="${f}-${g} ${h}"><span style="color:${g < 50 ? '#161616' : '#fff'}">${h}</span></i>`; }).join('')}</div>`).join('');
+
+// themes
+const TOK = ['background', 'layer-01', 'layer-02', 'text-primary', 'text-secondary', 'interactive', 'support-error', 'focus'];
+document.getElementById('themes').innerHTML = ['white', 'g10', 'g90', 'g100'].map((t) => `
+  <div class="theme" data-carbon-theme="${t}"><h3>${t === 'white' ? 'White' : t.toUpperCase()}</h3>
+    <div class="ibm-tile">layer-01<div class="ibm-tile" style="margin-top:.5rem">layer-02</div></div>
+    <a class="ibm-btn ibm-btn--md" href="#" style="margin:.5rem 0 1rem">Primary</a>
+    <div class="toks"></div></div>`).join('');
+document.querySelectorAll('.theme').forEach((el) => { el.querySelector('.toks').innerHTML = TOK.map((k) => { const h = v(`--cds-${k}`, el); return `<div class="tok"><i style="background:${h}"></i><span>${k}</span><span>${h}</span></div>`; }).join(''); });
+
+// data
+const DATA = [['14-1', 14, 'categorical · 6–14 series, in order'], ['5-1', 5, 'categorical · 5 series'], ['3-1', 3, 'categorical · 3 series'], ['mono-1', 11, 'sequential · purple'], ['mono-4', 11, 'sequential · teal'], ['diverge-1', 17, 'diverging · red ↔ cyan'], ['diverge-2', 17, 'diverging · purple ↔ teal']];
+for (const id of ['data-light', 'data-dark']) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<h3 style="margin-bottom:1rem">${id === 'data-light' ? 'Light themes' : 'Dark themes'}</h3>` + DATA.map(([g, n, label]) =>
+    `<div class="strip">${Array.from({ length: n }, (_, i) => `<i style="background:var(--cds-charts-${g}-${i + 1})"></i>`).join('')}</div><p class="strip-label">${g} — ${label}</p>`).join('');
+}
+
+// spacing
+document.getElementById('spacing').innerHTML = Array.from({ length: 13 }, (_, i) => { const n = `--cds-spacing-${String(i + 1).padStart(2, '0')}`; const val = v(n); return `<div class="space"><span style="width:7rem">${n.slice(6)}</span><span style="width:4rem">${parseFloat(val) * 16}px</span><b style="width:${val}"></b></div>`; }).join('');
+</script>
+</body>
+</html>

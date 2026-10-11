@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cities Run Hot</title>
+<!-- Expressive template: stacked Light display headline, offset text column, G100 zone with a big
+     number, pull quote, pictogram tiles, two charts, a CJK aside, notes. Accent family: CYAN
+     (chosen to match the red↔cyan diverging palette that temperature data uses).
+     data-theme="light" pins White for long-image export; remove it to follow the OS setting.
+     All figures are illustrative. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&family=IBM+Plex+Serif:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans-sc@1.1.0/fonts/split/woff2/hinted/IBMPlexSansSC-Regular.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ibm/plex-sans-sc@1.1.0/fonts/split/woff2/hinted/IBMPlexSansSC-Light.css">
+<link rel="stylesheet" href="ibm/tokens.css">
+<link rel="stylesheet" href="ibm/type.css">
+<link rel="stylesheet" href="ibm/base.css">
+<style>
+  /* The piece's one accent family — cyan (see color.md → Accent policy) */
+  :root, [data-carbon-theme="white"], [data-carbon-theme="g10"] {
+    --accent: var(--ibm-cyan-60); --accent-strong: var(--ibm-cyan-70); --accent-field: var(--ibm-cyan-10); --accent-graphic: var(--ibm-cyan-50); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --accent: var(--ibm-cyan-40); --accent-strong: var(--ibm-cyan-30); --accent-field: var(--ibm-cyan-90); --accent-graphic: var(--ibm-cyan-50); } }
+  :root[data-theme="dark"], [data-carbon-theme="g90"], [data-carbon-theme="g100"] {
+    --accent: var(--ibm-cyan-40); --accent-strong: var(--ibm-cyan-30); --accent-field: var(--ibm-cyan-90); --accent-graphic: var(--ibm-cyan-50); }
+
+  .masthead { display: flex; justify-content: space-between; padding-block: 1rem; border-bottom: 1px solid var(--cds-border-subtle-01); }
+  .hero { padding-block: 6rem 4rem; }
+  .hero h1 { margin-top: 2rem; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero .ibm-lede { margin-top: 2rem; color: var(--cds-text-secondary); }
+  .byline { margin-top: 3rem; display: flex; gap: 2rem; flex-wrap: wrap; }
+  .transect { padding-bottom: 4rem; }
+  .cells { display: grid; grid-template-columns: repeat(32, 1fr); gap: 1px; height: 6rem; }
+  .cells i { display: block; }
+  .ticks { display: flex; justify-content: space-between; margin-top: .75rem; }
+  .legend { display: flex; align-items: center; gap: .75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .legend .ramp { display: grid; grid-template-columns: repeat(17, 1fr); width: min(21rem, 40vw); height: .75rem; }
+  .sec-num { font-family: var(--cds-font-mono); color: var(--accent-strong); font-size: .875rem; }
+  .body-col { padding-block: 4rem; }
+  .body-col h2 { margin: .5rem 0 2rem; }
+  .prose p { font-family: var(--cds-font-serif); font-size: 1.25rem; line-height: 1.6; max-width: 38rem; }
+  .prose p + p { margin-top: 1.25rem; }
+  .zone { padding-block: 6rem; }
+  .zone .big { color: var(--accent); font-variant-numeric: tabular-nums; }
+  .zone p { max-width: 32rem; color: var(--cds-text-secondary); margin-top: 1.5rem; }
+  .quote { padding-block: 5rem; }
+  .quote blockquote { border-left: 8px solid var(--accent-graphic); padding-left: 2rem; }
+  .quote cite { display: block; margin-top: 1.5rem; font-style: normal; }
+  .tiles { padding-bottom: 4rem; }
+  .tile-row { display: grid; grid-template-columns: 1fr; gap: 1px; background: var(--cds-border-subtle-01); border: 1px solid var(--cds-border-subtle-01); }
+  @media (min-width: 42rem) { .tile-row { grid-template-columns: repeat(3, 1fr); } }
+  .tile-row .ibm-tile { padding: 2rem 1rem 2.5rem; min-height: 18rem; display: flex; flex-direction: column; gap: 1rem; background: var(--cds-background); }
+  .tile-row svg { width: 5rem; height: 5rem; fill: var(--accent-strong); }
+  .tile-row h3 { margin-top: auto; }
+  .tile-row p { color: var(--cds-text-secondary); font-size: .875rem; }
+  .chart-sec { padding-block: 4rem; }
+  .chart-sec h2 { margin-bottom: .5rem; }
+  .chart-sec .sub { color: var(--cds-text-secondary); margin-bottom: 2rem; }
+  #bars { width: 100%; height: auto; }
+  #bars text { font-family: var(--cds-font-sans); font-size: 13px; fill: var(--cds-text-secondary); }
+  #bars .lbl { fill: var(--cds-text-primary); }
+  #bars .grid { stroke: var(--cds-border-subtle-01); }
+  .key { display: flex; gap: 1.5rem; margin-bottom: 1rem; font-size: .875rem; }
+  .key span::before { content: ""; display: inline-block; width: .75rem; height: .75rem; margin-right: .5rem; vertical-align: -1px; background: var(--c); }
+  .aside-zh { padding-block: 4rem; }
+  .aside-zh .zh-quote { font-weight: 300; font-size: calc(2.25rem * .95); line-height: 1.4; }  /* IBM: CJK at 95% of the Latin size */
+  .aside-zh .zh-body { margin-top: 1.5rem; color: var(--cds-text-secondary); max-width: 36rem; line-height: 1.75; }
+  .notes { padding-block: 3rem 6rem; border-top: 1px solid var(--cds-border-subtle-01); }
+  .notes ol { padding-left: 1.25rem; display: grid; gap: .5rem; }
+  .notes li { font-size: .75rem; line-height: 1.33; letter-spacing: .32px; color: var(--cds-text-secondary); }
+  .arrow-link::after { content: " →"; }
+</style>
+</head>
+<body>
+<!-- Pictograms: node scripts/icon.mjs tree raindrop building --pictogram --sprite -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="picto-tree" viewBox="0 0 32 32"><path d="M22,31.36h-2.5c-1.025,0-1.86-0.835-1.86-1.86V18c0-0.75,0.61-1.36,1.36-1.36h7.369	c2.473-0.032,4.271-1.706,4.271-3.982c0-2.37-1.916-4.298-4.271-4.298c-0.742,0-1.478,0.196-2.125,0.565L23.76,9.202l-0.053-0.556	c-0.38-4.018-3.805-7.287-7.634-7.287c-3.092,0-5.963,2.038-7.144,5.07L8.804,6.751L8.478,6.64C7.992,6.475,7.209,6.36,6.574,6.36	c-2.875,0-5.214,2.339-5.214,5.214c0,2.81,2.292,5.035,5.218,5.066H8v0.72H6.574c-3.329-0.036-5.934-2.577-5.934-5.787	c0-3.272,2.662-5.934,5.934-5.934c0.501,0,1.211,0.069,1.811,0.223c1.358-3.137,4.408-5.223,7.689-5.223	c4.024,0,7.639,3.285,8.286,7.422c0.633-0.277,1.318-0.422,2.01-0.422c2.752,0,4.991,2.251,4.991,5.018	c0,2.688-2.098,4.665-4.986,4.702H19c-0.353,0-0.64,0.287-0.64,0.64v11.5c0,0.629,0.511,1.14,1.14,1.14H22V31.36z M11.5,31.36H9	v-0.72h2.5c0.628,0,1.14-0.511,1.14-1.14V17.828c0-0.432-0.175-0.854-0.48-1.16l-5.414-5.414l0.509-0.509l5.414,5.414	c0.439,0.439,0.691,1.047,0.691,1.668V29.5C13.36,30.525,12.525,31.36,11.5,31.36z"/></symbol>
+  <symbol id="picto-building" viewBox="0 0 32 32"><path d="M31,0.64v0.72H1V0.64H31z M29.36,30.64H31v0.721H1V30.64h1.64V3h0.72v27.64h9.28V23	c0-0.199,0.161-0.36,0.36-0.36h6c0.199,0,0.36,0.161,0.36,0.36v7.64h9.279V3h0.721V30.64z M13.36,30.64h5.28v-7.28h-5.28	C13.36,23.36,13.36,30.64,13.36,30.64z M6.36,5H5.64v2h0.72C6.36,7,6.36,5,6.36,5z M5.64,13h0.72v-2H5.64V13z M5.64,19h0.72v-2H5.64	V19z M11.36,5h-0.72v2h0.72V5z M10.64,13h0.72v-2h-0.72V13z M10.64,19h0.72v-2h-0.72V19z M16.36,5h-0.72v2h0.72V5z M15.64,13h0.72	v-2h-0.72V13z M15.64,19h0.72v-2h-0.72V19z M21.36,5h-0.72v2h0.721L21.36,5L21.36,5z M20.64,13h0.721v-2H20.64V13z M20.64,19h0.721	v-2H20.64V19z M26.36,5h-0.72v2h0.721L26.36,5L26.36,5z M25.64,13h0.721v-2H25.64V13z M25.64,19h0.721v-2H25.64V19z"/></symbol>
+  <symbol id="picto-raindrop" viewBox="0 0 32 32"><path d="M16,31.36C9.312,31.36,4.64,26.688,4.64,20	c0-4.008,1.925-6.53,2.073-6.717L15.708,0.79c0.135-0.188,0.449-0.188,0.584,0l9,12.5c0.074,0.092,2.068,2.631,2.068,6.71	C27.36,26.688,22.688,31.36,16,31.36z M16,1.616L7.292,13.71c-0.003,0.004-0.007,0.01-0.011,0.014C7.262,13.749,5.36,16.185,5.36,20	c0,6.265,4.375,10.64,10.64,10.64S26.64,26.265,26.64,20c0-3.815-1.902-6.251-1.921-6.275L16,1.616z M16,26.36v-0.72	c3.268,0,5.64-2.372,5.64-5.64h0.721C22.36,23.686,19.686,26.36,16,26.36z"/></symbol>
+  <symbol id="picto-sunny" viewBox="0 0 32 32"><path d="M16,29.36c-0.199,0-0.36-0.161-0.36-0.36v-3c0-0.199,0.161-0.36,0.36-0.36s0.36,0.161,0.36,0.36v3	C16.36,29.199,16.199,29.36,16,29.36z M25.192,25.553c-0.092,0-0.185-0.035-0.255-0.105l-2.121-2.121	c-0.141-0.141-0.141-0.369,0-0.51s0.369-0.141,0.51,0l2.121,2.121c0.141,0.141,0.141,0.369,0,0.51	C25.377,25.518,25.284,25.553,25.192,25.553z M6.808,25.553c-0.092,0-0.184-0.035-0.254-0.105c-0.141-0.141-0.141-0.369,0-0.51	l2.121-2.121c0.141-0.141,0.368-0.141,0.509,0s0.141,0.369,0,0.51l-2.121,2.121C6.992,25.518,6.9,25.553,6.808,25.553z M16,23.36	c-4.058,0-7.36-3.302-7.36-7.36S11.942,8.64,16,8.64c4.059,0,7.36,3.302,7.36,7.36C23.36,20.059,20.059,23.36,16,23.36z M16,9.36	c-3.661,0-6.64,2.979-6.64,6.64s2.979,6.64,6.64,6.64s6.64-2.979,6.64-6.64S19.661,9.36,16,9.36z M29,16.36h-3	c-0.199,0-0.36-0.161-0.36-0.36s0.161-0.36,0.36-0.36h3c0.199,0,0.36,0.161,0.36,0.36S29.199,16.36,29,16.36z M6,16.36H3	c-0.199,0-0.36-0.161-0.36-0.36S2.801,15.64,3,15.64h3c0.199,0,0.36,0.161,0.36,0.36S6.199,16.36,6,16.36z M23.071,9.289	c-0.092,0-0.185-0.035-0.255-0.105c-0.141-0.141-0.141-0.368,0-0.509l2.121-2.121c0.141-0.141,0.369-0.141,0.51,0	s0.141,0.368,0,0.509l-2.121,2.121C23.256,9.253,23.163,9.289,23.071,9.289z M8.929,9.289c-0.092,0-0.184-0.035-0.254-0.105	L6.553,7.062c-0.141-0.141-0.141-0.368,0-0.509s0.368-0.141,0.509,0l2.121,2.121c0.141,0.141,0.141,0.368,0,0.509	C9.113,9.253,9.021,9.289,8.929,9.289z M16,6.36c-0.199,0-0.36-0.161-0.36-0.36V3c0-0.199,0.161-0.36,0.36-0.36S16.36,2.801,16.36,3	v3C16.36,6.199,16.199,6.36,16,6.36z"/></symbol>
+</svg>
+
+<div class="ibm-grid"><div class="masthead"><span class="ibm-eyebrow">Field notes · No. 12</span><span class="ibm-eyebrow">October 2026</span></div></div>
+
+<header class="ibm-grid hero">
+  <div class="lg-12">
+    <p class="ibm-eyebrow">Climate · Cities</p>
+    <h1 class="cds--type-fluid-display-04">Why cities<br>run hot<br><em>after dark</em></h1>
+    <p class="ibm-lede">Streets store the afternoon in stone and asphalt, then give it back all night. The fix is less about paint and more about water, shade and air.</p>
+    <div class="byline"><span class="ibm-caption">Words: A. Writer</span><span class="ibm-caption">12 min read</span><span class="ibm-caption">Figures are illustrative</span></div>
+  </div>
+</header>
+
+<!-- Data viz: a transect from farmland through downtown and back, colored by the red↔cyan diverging palette -->
+<section class="ibm-grid transect" aria-label="Night-time temperature along a city transect">
+  <div class="lg-16" data-viz>
+    <div class="cells" id="cells"></div>
+    <div class="ticks"><span class="ibm-caption">Farmland</span><span class="ibm-caption">Suburb</span><span class="ibm-caption">Downtown</span><span class="ibm-caption">River park</span><span class="ibm-caption">Suburb</span><span class="ibm-caption">Farmland</span></div>
+    <div class="legend"><span class="ibm-caption">Cooler</span><span class="ramp" id="ramp"></span><span class="ibm-caption">Warmer than farmland at 02:00</span></div>
+  </div>
+</section>
+
+<section class="ibm-grid body-col">
+  <div class="lg-4"><span class="sec-num">01</span></div>
+  <div class="lg-8 prose">
+    <h2 class="cds--type-fluid-heading-05">Concrete remembers the afternoon</h2>
+    <p>By late afternoon a dark roof can be far hotter than the air above it. Brick, stone and asphalt soak up that heat for hours, and they have a lot of it to give back once the sun goes down.</p>
+    <p>In open country the ground cools quickly into a clear sky. Downtown, tall walls block that view of the sky, so warmth bounces between buildings instead of escaping. The gap is widest a few hours after midnight, when people most need rest.</p>
+  </div>
+</section>
+
+<section class="ibm-section zone" data-carbon-theme="g100">
+  <div class="ibm-grid">
+    <div class="lg-10">
+      <p class="ibm-eyebrow">Peak gap at 02:00</p>
+      <p class="big cds--type-fluid-display-04">+7 °C</p>
+      <p>The difference between a dense downtown block and farmland 20 km away on a still summer night. That's an illustrative value; real gaps depend on the city, the weather and the season.</p>
+    </div>
+  </div>
+</section>
+
+<section class="ibm-grid quote">
+  <div class="lg-12 lg-start-3">
+    <blockquote><p class="ibm-quote">A street that keeps its trees is <em>several degrees cooler</em> at midnight than one that only changed its paint.</p></blockquote>
+    <cite class="ibm-caption">Synthesis of the figures below</cite>
+  </div>
+</section>
+
+<section class="ibm-grid tiles">
+  <div class="lg-16">
+    <p class="sec-num" style="margin-bottom:1.5rem">02 · Three things that cool a street</p>
+    <div class="tile-row">
+      <div class="ibm-tile"><svg aria-hidden="true"><use href="#picto-tree"/></svg><h3>Shade that breathes</h3><p>Canopy blocks the afternoon sun, and leaves release water into the air all evening.</p></div>
+      <div class="ibm-tile"><svg aria-hidden="true"><use href="#picto-raindrop"/></svg><h3>Water that stays</h3><p>Soil and ponds that hold rain cool as they dry, unlike sealed pavement that sheds it.</p></div>
+      <div class="ibm-tile"><svg aria-hidden="true"><use href="#picto-building"/></svg><h3>Open sky</h3><p>Gaps between buildings let heat radiate upward rather than bounce between walls.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="ibm-grid chart-sec">
+  <div class="lg-12">
+    <h2 class="cds--type-fluid-heading-04">Trees beat paint after dark</h2>
+    <p class="sub">Cooling vs. an untreated street, °C (illustrative)</p>
+    <div data-viz>
+      <div class="key"><span style="--c:var(--cds-charts-2-4-1)">Afternoon</span><span style="--c:var(--cds-charts-2-4-2)">02:00</span></div>
+      <div><svg id="bars" role="img" aria-label="Bar chart: street trees cool most at night; reflective paint cools mostly in the afternoon"></svg></div>
+    </div>
+  </div>
+</section>
+
+<section class="ibm-section aside-zh" data-carbon-theme="g10">
+  <div class="ibm-grid">
+    <div class="lg-10" lang="zh-CN">
+      <p class="ibm-eyebrow">中文摘要</p>
+      <p class="zh-quote">城市的热，往往在<span style="color:var(--accent-strong)">夜里</span>才显出来。</p>
+      <p class="zh-body ibm-cjk">白天被砖石和沥青吸收的热量，会在整夜慢慢释放。比起改变屋顶颜色，保留树荫、留住雨水、让天空“看得见”街道，对夜间降温更有效。文中数字仅为示意。</p>
+    </div>
+  </div>
+</section>
+
+<footer class="ibm-grid notes">
+  <div class="lg-4"><p class="ibm-eyebrow">Notes</p></div>
+  <div class="lg-8">
+    <ol>
+      <li>All temperatures in this template are illustrative placeholders. Replace them with sourced figures and cite them here.</li>
+      <li>The transect uses Carbon's red↔cyan diverging palette, which Carbon recommends for temperature-like data.</li>
+      <li><a class="arrow-link" href="#">Method and sources</a></li>
+    </ol>
+  </div>
+</footer>
+
+<script>
+// transect: ΔT along 32 cells (0 = farmland), mapped onto diverge-1 (17 steps; 9 = white midpoint).
+// diverge-1 runs red-80 … red-10, white, cyan-10 … cyan-80, so warm = low indexes.
+const DT = [0, 0.3, 0.6, 1, 1.6, 2.2, 3, 3.8, 4.6, 5.4, 6.1, 6.6, 7, 6.8, 6.2, 5, 2.5, -0.8, -1.4, -0.6, 1.8, 3.6, 4.4, 4, 3.2, 2.4, 1.6, 1, 0.6, 0.3, 0, -0.2];
+const step = (d) => d >= 0 ? Math.max(1, 9 - Math.round(d / 7 * 8)) : Math.min(17, 9 + Math.round(-d / 2 * 4));
+document.getElementById('cells').innerHTML = DT.map((d) => `<i title="${d > 0 ? '+' : ''}${d} °C" style="background:var(--cds-charts-diverge-1-${step(d)})"></i>`).join('');
+document.getElementById('ramp').innerHTML = Array.from({ length: 17 }, (_, i) => `<i style="background:var(--cds-charts-diverge-1-${17 - i})"></i>`).join('');
+
+// grouped bars: afternoon vs night cooling — drawn at the container's real width (1 SVG unit = 1 CSS px),
+// so labels stay 13px at any width and static exports (PNG/PDF) never need scrolling.
+const ROWS = [['Street trees', 2.6, 3.4], ['Wet soil and ponds', 1.8, 2.1], ['Wider gaps between blocks', 0.6, 1.5], ['Reflective roof paint', 2.4, 0.4]];
+function drawBars() {
+  const svg = document.getElementById('bars'), W = svg.parentElement.clientWidth, narrow = W < 560;
+  const L = narrow ? 12 : 210, max = 4, bw = 18, lab = narrow ? 22 : 0, rowH = 60 + lab;   // narrow: label above its bars
+  const H = ROWS.length * rowH + 28, x = (v) => L + (v / max) * (W - L - 40);
+  let g = '';
+  for (let v = 0; v <= max; v++) g += `<line class="grid" x1="${x(v)}" x2="${x(v)}" y1="0" y2="${ROWS.length * rowH}"/><text x="${x(v)}" y="${ROWS.length * rowH + 18}" text-anchor="middle">${v}</text>`;
+  ROWS.forEach(([name, day, night], i) => {
+    const y0 = i * rowH + 10 + lab;
+    g += narrow ? `<text class="lbl" x="${L}" y="${y0 - 8}">${name}</text>` : `<text class="lbl" x="0" y="${y0 + bw + 4}">${name}</text>`;
+    g += `<rect x="${L}" y="${y0}" width="${x(day) - L}" height="${bw}" fill="var(--cds-charts-2-4-1)"/><text x="${x(day) + 6}" y="${y0 + 13}">${day}</text>`;
+    g += `<rect x="${L}" y="${y0 + bw + 2}" width="${x(night) - L}" height="${bw}" fill="var(--cds-charts-2-4-2)"/><text x="${x(night) + 6}" y="${y0 + bw + 15}">${night}</text>`;
+  });
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.innerHTML = g;
+}
+drawBars(); addEventListener('resize', drawBars);
+</script>
+</body>
+</html>

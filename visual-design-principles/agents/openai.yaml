@@ -1,0 +1,4 @@
+interface:
+  display_name: "Visual design principles"
+  short_description: "Book-grounded composition, with frontend guidance"
+  default_prompt: "Use $visual-design-principles to improve this design while preserving its purpose and visual identity."

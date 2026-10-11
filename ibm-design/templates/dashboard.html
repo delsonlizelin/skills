@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Depot Capacity</title>
+<!-- Productive template: UI shell (G100 zone) + page header + condensed KPI tiles + chart + table.
+     Sample data is fictional. Replace freely; keep tokens, grid and conventions. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="ibm/tokens.css">
+<link rel="stylesheet" href="ibm/type.css">
+<link rel="stylesheet" href="ibm/base.css">
+<style>
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--cds-border-subtle-01); }
+  @media (min-width: 66rem) { .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .kpis .ibm-tile { display: grid; gap: .5rem; padding: 1rem 1rem 1.5rem; }
+  .delta { display: inline-flex; align-items: center; gap: .25rem; font-size: .875rem; color: var(--cds-text-secondary); }
+  .delta svg { width: 1rem; height: 1rem; fill: currentColor; }
+  .delta[data-status="warning"] svg { fill: var(--cds-support-warning); }
+  .panel { background: var(--cds-layer-01); padding: 1rem 1rem 1.5rem; }
+  .panel h2 { font-size: 1rem; line-height: 1.375; font-weight: 600; }
+  .panel .sub { font-size: .875rem; color: var(--cds-text-secondary); margin-top: .25rem; }
+  .row-gap { row-gap: 2rem; }
+  #chart { width: 100%; height: auto; margin-top: 1.5rem; overflow: visible; }
+  #chart text { font-family: var(--cds-font-sans); font-size: 12px; fill: var(--cds-text-secondary); }
+  #chart .grid { stroke: var(--cds-border-subtle-01); }
+  #chart .axis { stroke: var(--cds-border-strong-01); }
+  #chart .threshold { stroke: var(--cds-support-warning); stroke-dasharray: 4 4; }
+  #chart .context { stroke: var(--cds-border-strong-01); fill: none; stroke-width: 1.5; }
+  #chart .focus { stroke: var(--cds-charts-1-1-1); fill: none; stroke-width: 2.5; }
+  #chart .label-focus { fill: var(--cds-text-primary); font-weight: 600; }
+  .bars { display: grid; gap: .75rem; margin-top: 1.5rem; }
+  .bar { display: grid; grid-template-columns: 5.5rem 1fr 3rem; gap: .75rem; align-items: center; font-size: .875rem; }
+  .bar .track { height: .75rem; background: var(--cds-layer-02); position: relative; }
+  .bar .fill { position: absolute; inset: 0 auto 0 0; background: var(--cds-charts-1-1-1); }
+  .bar .fill[data-context] { background: var(--cds-border-strong-01); }
+  .bar .v { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-head { display: flex; justify-content: space-between; align-items: end; padding: 1rem; background: var(--cds-layer-01); }
+  .foot { padding-block: 2rem 4rem; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-menu" viewBox="0 0 32 32"><path d="M4 6H28V8H4zM4 24H28V26H4zM4 12H28V14H4zM4 18H28V20H4z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 32 32"><path d="M29,27.5859l-7.5521-7.5521a11.0177,11.0177,0,1,0-1.4141,1.4141L27.5859,29ZM4,13a9,9,0,1,1,9,9A9.01,9.01,0,0,1,4,13Z"/></symbol>
+  <symbol id="i-notification" viewBox="0 0 32 32"><path d="M28.7071,19.293,26,16.5859V13a10.0136,10.0136,0,0,0-9-9.9492V1H15V3.0508A10.0136,10.0136,0,0,0,6,13v3.5859L3.2929,19.293A1,1,0,0,0,3,20v3a1,1,0,0,0,1,1h7v.7768a5.152,5.152,0,0,0,4.5,5.1987A5.0057,5.0057,0,0,0,21,25V24h7a1,1,0,0,0,1-1V20A1,1,0,0,0,28.7071,19.293ZM19,25a3,3,0,0,1-6,0V24h6Zm8-3H5V20.4141L7.707,17.707A1,1,0,0,0,8,17V13a8,8,0,0,1,16,0v4a1,1,0,0,0,.293.707L27,20.4141Z"/></symbol>
+  <symbol id="i-user" viewBox="0 0 32 32"><path d="M16,8a5,5,0,1,0,5,5A5,5,0,0,0,16,8Zm0,8a3,3,0,1,1,3-3A3.0034,3.0034,0,0,1,16,16Z"/><path d="M16,2A14,14,0,1,0,30,16,14.0158,14.0158,0,0,0,16,2ZM10,26.3765V25a3.0033,3.0033,0,0,1,3-3h6a3.0033,3.0033,0,0,1,3,3v1.3765a11.8989,11.8989,0,0,1-12,0Zm13.9925-1.4507A5.0016,5.0016,0,0,0,19,20H13a5.0016,5.0016,0,0,0-4.9925,4.9258,12,12,0,1,1,15.985,0Z"/></symbol>
+  <symbol id="i-download" viewBox="0 0 32 32"><path d="M26,24v4H6V24H4v4H4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2h0V24Z"/><path d="M26 14 24.59 12.59 17 20.17 17 2 15 2 15 20.17 7.41 12.59 6 14 16 24 26 14z"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 32 32"><path d="M18 6 16.57 7.393 24.15 15 4 15 4 17 24.15 17 16.57 24.573 18 26 28 16 18 6z"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 32 32"><path d="M16 4 6 14 7.41 15.41 15 7.83 15 28 17 28 17 7.83 24.59 15.41 26 14 16 4z"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 32 32"><path d="M24.59 16.59 17 24.17 17 4 15 4 15 24.17 7.41 16.59 6 18 16 28 26 18 24.59 16.59z"/></symbol>
+  <symbol id="i-warning" viewBox="0 0 20 20"><path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"/><path d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z" style="fill:var(--ibm-glyph-on-warning)"/></symbol>
+  <!-- icon.mjs warning--filled --size 20 --inner "var(--ibm-glyph-on-warning)": the "!" is a separate inner path, dark in every theme so it reads on yellow -->
+  <symbol id="i-warning-tag" viewBox="0 0 20 20"><path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z" style="fill:var(--cds-support-warning)"/><path d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z" style="fill:var(--ibm-glyph-on-warning)" class="inner"/></symbol>
+</svg>
+
+<header class="ibm-header ibm-header--collapsible" data-carbon-theme="g100">
+  <button class="ibm-icon-btn ibm-header__menu" aria-label="Menu" aria-expanded="false" onclick="const h=this.closest('.ibm-header');this.setAttribute('aria-expanded',h.toggleAttribute('data-nav-open'))"><svg><use href="#i-menu"/></svg></button>
+  <a class="ibm-header__name" href="#">Northwind <b>Ops</b></a>
+  <nav class="ibm-header__nav" aria-label="Main">
+    <a href="#" aria-current="page">Capacity</a><a href="#">Routes</a><a href="#">Reports</a>
+  </nav>
+  <div class="ibm-header__actions">
+    <button class="ibm-icon-btn" aria-label="Search"><svg><use href="#i-search"/></svg></button>
+    <button class="ibm-icon-btn" aria-label="Notifications"><svg><use href="#i-notification"/></svg></button>
+    <button class="ibm-icon-btn" aria-label="Account"><svg><use href="#i-user"/></svg></button>
+  </div>
+</header>
+
+<main>
+  <section class="ibm-grid">
+    <div class="ibm-page-header">
+      <div>
+        <p class="ibm-eyebrow">Overnight shift · updated 2 min ago</p>
+        <h1 class="ibm-page-header__title">Depot capacity</h1>
+        <p class="ibm-page-header__desc">Live load across six depots, forecast to 06:00.</p>
+      </div>
+      <div class="ibm-btn-set">
+        <a class="ibm-btn ibm-btn--secondary" href="#">Export <svg><use href="#i-download"/></svg></a>
+        <a class="ibm-btn" href="#">Rebalance loads <svg><use href="#i-arrow-right"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="ibm-grid" style="padding-bottom:1.5rem">
+    <div class="ibm-notification" data-kind="warning" role="status">
+      <svg><use href="#i-warning"/></svg>
+      <div><strong>Depot 4 reaches 95% by 02:00.</strong> Reroute 3 inbound trucks to Depot 6 to stay under the limit.</div>
+    </div>
+  </section>
+
+  <section class="ibm-grid ibm-grid--narrow">
+    <div class="kpis">
+      <div class="ibm-tile"><span class="ibm-kpi-label">Network utilization</span><span class="ibm-kpi">78%</span><span class="delta"><svg><use href="#i-arrow-up"/></svg>4 pts vs. last night</span></div>
+      <div class="ibm-tile"><span class="ibm-kpi-label">Inbound trucks</span><span class="ibm-kpi">42</span><span class="delta">next 4 hours</span></div>
+      <div class="ibm-tile"><span class="ibm-kpi-label">On-time departures</span><span class="ibm-kpi">96.1%</span><span class="delta"><svg><use href="#i-arrow-down"/></svg>0.4 pts</span></div>
+      <div class="ibm-tile"><span class="ibm-kpi-label">Depots at risk</span><span class="ibm-kpi">2</span><span class="delta" data-status="warning"><svg><use href="#i-warning"/></svg>Depot 4, Depot 2</span></div>
+    </div>
+  </section>
+
+  <section class="ibm-grid ibm-grid--narrow row-gap" style="padding-block:2rem">
+    <div class="panel lg-10">
+      <h2>Depot 4 crosses the 95% limit at 02:00</h2>
+      <p class="sub">Load as % of capacity, forecast to 06:00 · other depots in gray</p>
+      <div><svg id="chart" role="img" aria-label="Line chart of depot load; Depot 4 rises above 95% at 02:00"></svg></div>
+    </div>
+    <div class="panel lg-6">
+      <h2>Peak load by depot</h2>
+      <p class="sub">Forecast maximum before 06:00</p>
+      <div class="bars" id="bars" data-viz></div>
+    </div>
+  </section>
+
+  <section class="ibm-grid ibm-grid--narrow">
+    <div>
+      <div class="table-head"><div><h2 class="cds--type-heading-compact-02">Depots</h2><p class="sub" style="font-size:.875rem;color:var(--cds-text-secondary)">6 sites · sorted by risk</p></div>
+        <a class="ibm-btn ibm-btn--ghost ibm-btn--md" href="#">View all routes <svg><use href="#i-arrow-right"/></svg></a></div>
+      <div class="ibm-table-wrap">
+        <table class="ibm-table ibm-table--stack">
+          <thead><tr><th>Depot</th><th>Status</th><th class="ibm-num">Load now</th><th class="ibm-num">Peak</th><th class="ibm-num">Inbound</th><th>Peak at</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="ibm-grid foot"><p class="ibm-caption">Sample data for illustration · times local</p></footer>
+</main>
+
+<script>
+// Fictional data — hours 22:00 → 06:00
+const HOURS = ['22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00'];
+const SERIES = {
+  'Depot 4': [71, 76, 83, 90, 96, 98, 94, 86, 80],
+  'Depot 2': [64, 70, 78, 85, 89, 91, 88, 80, 72],
+  'Depot 6': [52, 55, 58, 64, 62, 61, 60, 58, 55],
+  'Depot 1': [60, 61, 63, 66, 68, 69, 72, 66, 62],
+  'Depot 3': [44, 47, 50, 54, 57, 58, 56, 52, 49],
+  'Depot 5': [38, 42, 46, 50, 48, 46, 44, 42, 40],
+};
+const FOCUS = 'Depot 4', LIMIT = 95;
+
+// line chart — one highlighted series in the data color, the rest as gray context.
+// Drawn at the container's real width so 12px labels stay 12px on phones and in exports.
+function drawLine() {
+  const svg = document.getElementById('chart'), W = svg.parentElement.clientWidth, H = 280, L = 36, R = W < 480 ? 56 : 64, T = 8, B = 28;
+  const x = (i) => L + (i * (W - L - R)) / (HOURS.length - 1), y = (v) => T + ((100 - v) * (H - T - B)) / 70; // 30..100%
+  const every = W < 480 ? 4 : 2;
+  let g = '';
+  for (let v = 30; v <= 100; v += 10) g += `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L - 8}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+  HOURS.forEach((h, i) => { if (i % every === 0) g += `<text x="${x(i)}" y="${H - 8}" text-anchor="middle"${h === '00:00' ? ' font-weight="600"' : ''}>${h}</text>`; });
+  g += `<line class="threshold" x1="${L}" x2="${W - R}" y1="${y(LIMIT)}" y2="${y(LIMIT)}"/><text x="${W - R + 6}" y="${y(LIMIT) + 4}">95%</text>`;
+  const path = (vals) => vals.map((v, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join('');
+  for (const [name, vals] of Object.entries(SERIES)) if (name !== FOCUS) g += `<path class="context" d="${path(vals)}"/>`;
+  g += `<path class="focus" d="${path(SERIES[FOCUS])}"/>`;
+  g += `<circle cx="${x(4)}" cy="${y(SERIES[FOCUS][4])}" r="4" fill="var(--cds-charts-1-1-1)"/>`;
+  g += `<text class="label-focus" x="${x(8) + 6}" y="${y(SERIES[FOCUS][8]) + 4}">${W < 480 ? 'D4' : FOCUS}</text>`;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W); svg.setAttribute('height', H);
+  svg.innerHTML = g;
+}
+drawLine(); addEventListener('resize', drawLine);
+
+// bars
+const peaks = Object.entries(SERIES).map(([n, v]) => [n, Math.max(...v)]).sort((a, b) => b[1] - a[1]);
+document.getElementById('bars').innerHTML = peaks.map(([n, p]) =>
+  `<div class="bar"><span>${n}</span><span class="track"><span class="fill" ${n === FOCUS ? '' : 'data-context'} style="width:${p}%"></span></span><span class="v">${p}%</span></div>`).join('');
+
+// table
+// status meanings are fixed: red = over limit, warning glyph = near limit, green = healthy (color + icon/shape + words)
+const status = (p) => p >= LIMIT ? ['red', 'Over limit', ''] : p >= 88 ? ['gray', 'Near limit', '<svg width="12" height="12"><use href="#i-warning-tag"/></svg>'] : ['green', 'Healthy', ''];
+const inbound = { 'Depot 4': 11, 'Depot 2': 9, 'Depot 6': 4, 'Depot 1': 8, 'Depot 3': 6, 'Depot 5': 4 };
+document.getElementById('rows').innerHTML = peaks.map(([n, p]) => {
+  const [c, s, icon] = status(p); const i = SERIES[n].indexOf(p);
+  return `<tr><td data-label="Depot">${n}</td><td data-label="Status"><span class="ibm-tag" data-color="${c}" data-status>${icon}${s}</span></td><td data-label="Load now" class="ibm-num">${SERIES[n][0]}%</td><td data-label="Peak" class="ibm-num">${p}%</td><td data-label="Inbound" class="ibm-num">${inbound[n]}</td><td data-label="Peak at">${HOURS[i]}</td></tr>`;
+}).join('');
+</script>
+</body>
+</html>
