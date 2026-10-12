@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quarterly revenue compared with target</title>
+  <style>
+    :root {
+      --chart-bg: #fffff8;
+      --chart-text: #111;
+      --chart-secondary: #595959;
+      --chart-rule: #ccc;
+      --chart-focal: #b33227;
+      --chart-context: #737373;
+      --chart-font: "DejaVu Serif", "Noto Serif CJK SC", serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; background: var(--chart-bg); color: var(--chart-text); font: 16px/1.5 var(--chart-font); }
+    .chart { margin: 0 auto; max-width: 720px; }
+    h1 { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.3; }
+    .context { margin: 8px 0 16px; color: var(--chart-secondary); font-size: 14px; }
+    svg { width: 100%; display: block; overflow: visible; }
+    svg text { fill: var(--chart-secondary); font: 14px var(--chart-font); }
+    .axis { stroke: var(--chart-rule); stroke-width: 1; }
+    .focal { fill: none; stroke: var(--chart-focal); stroke-width: 2; }
+    .context-line { fill: none; stroke: var(--chart-context); stroke-width: 1.5; stroke-dasharray: 6 4; }
+    .identification { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 16px; font-size: 14px; }
+    .identification[hidden] { display: none; }
+    .key { display: inline-block; width: 24px; margin-right: 8px; vertical-align: middle; border-top: 2px solid var(--chart-focal); }
+    .key.target { border-color: var(--chart-context); border-top-style: dashed; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; width: fit-content; }
+    summary:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 14px; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; margin-bottom: 8px; }
+    th, td { padding: 8px; text-align: right; border-bottom: 1px solid var(--chart-rule); }
+    th:first-child { text-align: left; padding-left: 0; }
+    @media (max-width: 480px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+  <figure class="chart" data-viz>
+    <h1 id="chart-title">Quarterly revenue compared with target</h1>
+    <p class="context">Illustrative data · 2025 · USD</p>
+    <svg role="img" aria-labelledby="chart-title chart-description">
+      <desc id="chart-description"></desc>
+      <g id="marks"></g>
+    </svg>
+    <div class="identification" hidden aria-hidden="true">
+      <span><i class="key"></i>Revenue</span>
+      <span><i class="key target"></i>Target</span>
+    </div>
+    <details>
+      <summary>Exact quarterly values</summary>
+      <table>
+        <caption>Revenue and target, USD</caption>
+        <thead><tr><th scope="col">Quarter</th><th scope="col">Revenue</th><th scope="col">Target</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </details>
+    <noscript>This example requires JavaScript to draw the chart and its value table.</noscript>
+  </figure>
+  <script>
+    // Marks, labels, accessible text, and the table share the same source values.
+    const rows = [
+      { quarter: "Q1", revenue: 42000, target: 40000 },
+      { quarter: "Q2", revenue: 56000, target: 46000 },
+      { quarter: "Q3", revenue: 71000, target: 52000 },
+      { quarter: "Q4", revenue: 82000, target: 62000 },
+    ];
+    const currency = new Intl.NumberFormat("en-US");
+    const above = rows.filter(row => row.revenue > row.target).length;
+    const last = rows.at(-1);
+    document.querySelector("h1").textContent = `Revenue exceeded target in ${above} of ${rows.length} quarters`;
+    document.querySelector("#chart-description").textContent =
+      `Illustrative 2025 data. Revenue rose from ${currency.format(rows[0].revenue)} to ${currency.format(last.revenue)} USD; target rose from ${currency.format(rows[0].target)} to ${currency.format(last.target)} USD. The last-quarter gap was ${currency.format(last.revenue - last.target)} USD.`;
+    const tbody = document.querySelector("tbody");
+    for (const row of rows) {
+      const tr = document.createElement("tr");
+      for (const [index, value] of [row.quarter, currency.format(row.revenue), currency.format(row.target)].entries()) {
+        const cell = document.createElement(index === 0 ? "th" : "td");
+        if (index === 0) cell.scope = "row";
+        cell.textContent = value;
+        tr.append(cell);
+      }
+      tbody.append(tr);
+    }
+    console.log(JSON.stringify({ quarters_above_target: above, final_gap_usd: last.revenue - last.target, rows }));
+
+    const svg = document.querySelector("svg");
+    const marks = document.querySelector("#marks");
+    function add(tag, attributes, content) {
+      const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, value);
+      if (content !== undefined) el.textContent = content;
+      marks.append(el);
+      return el;
+    }
+    function draw() {
+      // Match SVG coordinates to CSS pixels so narrow views keep readable type.
+      const width = svg.getBoundingClientRect().width;
+      const compact = width < 480;
+      const height = 280;
+      const left = 48;
+      const right = width - (compact ? 16 : 88);
+      const top = 16;
+      const bottom = height - 36;
+      const x = index => left + index * (right - left) / (rows.length - 1);
+      const y = value => bottom - (value - 40000) / 45000 * (bottom - top);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.style.height = `${height}px`;
+      marks.replaceChildren();
+      for (const value of [40000, 55000, 70000, 85000]) {
+        add("text", { x: left - 8, y: y(value) + 5, "text-anchor": "end" }, `${value / 1000}k`);
+      }
+      add("line", { x1: left, x2: right, y1: bottom, y2: bottom, class: "axis" });
+      for (const [index, row] of rows.entries()) {
+        add("text", { x: x(index), y: bottom + 26, "text-anchor": "middle" }, row.quarter);
+      }
+      for (const [field, name, style] of [["target", "Target", "context-line"], ["revenue", "Revenue", "focal"]]) {
+        const points = rows.map((row, index) => `${x(index)},${y(row[field])}`).join(" ");
+        add("polyline", { points, class: style, "data-series": field });
+        if (!compact) add("text", { x: right + 8, y: y(last[field]) + 5 }, name);
+      }
+      document.querySelector(".identification").hidden = !compact;
+    }
+    new ResizeObserver(draw).observe(svg);
+    draw();
+  </script>
+</body>
+</html>

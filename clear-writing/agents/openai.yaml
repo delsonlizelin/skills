@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clear Writing"
+  short_description: "Write, revise, and review clear human prose"
+  default_prompt: "Use $clear-writing to improve this text while preserving its meaning."

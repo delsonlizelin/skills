@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tufte Data Viz"
+  short_description: "Design honest, readable data visualizations"
+  default_prompt: "Use $tufte-data-viz to design or review this visualization."

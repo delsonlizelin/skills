@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wait, What?"
+  short_description: "Explain complex answers in plain language"
+  default_prompt: "Use $wait-what to explain the last answer plainly and concisely."
