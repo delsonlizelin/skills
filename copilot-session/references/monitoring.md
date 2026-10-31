@@ -6,7 +6,7 @@ Phone alerts require a separately installed and configured `bark-notify` skill, 
 
 ## Setup
 
-The bundled `scripts/watch_session.py` follows only one named local transcript, handles incomplete final records, persists its notification state, and sends Bark on relevant state changes. It retains lifecycle metadata rather than messages or tool arguments. It requires the same Python environment that can import the Bark helper's `requests` dependency.
+The bundled `scripts/watch_session.py` follows only one named local transcript, handles incomplete final records, persists its notification state, and sends Bark on relevant state changes. It retains lifecycle metadata rather than messages or tool arguments. It detects `permission.requested`/`permission.completed`, pending `ask_user`, and `exit_plan_mode`; a permission or plan-review screen must alert at the next poll, not after the inactivity timeout. It requires the same Python environment that can import the Bark helper's `requests` dependency.
 
 Identify the exact session first. Reuse any existing watcher for that UUID; inspect its known unit and state file before starting another one. For a new watcher on this host, replace `SESSION_UUID` and the human-facing label, then run the following commands with host escalation when the sandbox cannot access the user service manager or notification network:
 
@@ -33,14 +33,16 @@ The watcher starts immediately. If the session is already waiting, stopped, ende
 
 | Condition | Default detection | Phone message meaning |
 | --- | --- | --- |
-| Pending `ask_user` | Next poll, normally within 15 seconds | Waiting for the user's answer or approval |
+| Pending `ask_user` | Next poll, normally within 15 seconds | Waiting for the user's answer |
+| Pending tool/path/URL permission | Next poll | Access is blocked; the relay should check existing authorization |
+| Pending `exit_plan_mode` | Next poll | Plan awaits review; execution is not approved |
 | Saved turn end, no pending tool | 45 seconds of quiet, plus up to one poll | Turn stopped; inspect result or next step |
 | Explicit session idle/shutdown/abort | Next poll | A terminal session event was recorded |
 | Explicit session error | Next poll | A session error was recorded |
 | No new saved activity during otherwise active work | 600 seconds, plus up to one poll | Possibly stalled or offline |
 | Missing/unreadable transcript | Next poll | Saved session evidence is unavailable |
 
-Flags `--poll-seconds`, `--stop-grace-seconds`, and `--stale-seconds` override those timings when the task needs it. A pending question takes precedence over inactivity; waiting for an answer is not a crash. Routine tool failures do not mean the session is down. The stopped-turn grace avoids treating every intermediate `assistant.turn_end` as completion, but remains an inference from saved activity. It does not prove that the whole task finished or succeeded. Prefer a live host subscription's `chat/turnComplete`, error, and input state when available and needed for stronger completion evidence.
+Flags `--poll-seconds`, `--stop-grace-seconds`, and `--stale-seconds` override those timings when the task needs it. The status file's `waiting_for` distinguishes `user_answer`, `permission`, and `plan_review`. An approved executable can resolve through a symlink outside granted roots; inspect the resolved target and grant that routine access under existing authorization. Never answer a business question to clear a permission screen. A pending question or permission takes precedence over inactivity; waiting for an answer is not a crash. Routine tool failures do not mean the session is down. The stopped-turn grace avoids treating every intermediate `assistant.turn_end` as completion, but remains an inference from saved activity. It does not prove that the whole task finished or succeeded. Prefer a live host subscription's `chat/turnComplete`, error, and input state when available and needed for stronger completion evidence.
 
 Notifications deduplicate by condition and, for questions/stopped turns, request or turn identity. Resume re-arms subsequent alerts. Notification errors are recorded using only their exception type; do not print raw exceptions that can contain the Bark credential URL. A failed send is not retried automatically for the same condition because a timeout can occur after acceptance. Inspect and report the failure instead of sending duplicates blindly.
 
@@ -74,3 +76,5 @@ systemctl --user stop "$watch_unit.service"
 Record the exact session UUID, unit name, status path, timing, current condition, and any actual delivery result in the task's existing continuity record when needed. Reconcile that record with the current service and status file on a later wrapper turn. Do not treat an old successful Bark response as evidence of a new send. For older watchers with a `delivered` field rather than `accepted`, inspect their actual implementation and current record before interpreting it.
 
 This transient user service survives the wrapper turn and can restart its watcher after a process failure. It does not guarantee monitoring across a host reboot, a stopped user manager, a host-wide outage, or loss of access to Bark. State those limits when relevant; do not promise a confirmed-down alert from a watcher running on the same host that went down.
+
+When the delegated task is finished and its durable artifact is verified, stop its watcher so an idle saved conversation does not keep generating stale alerts. Preserve its state and session UUID for later resumption. If a blocker is found during authorized monitoring, resolve routine access within the existing scope instead of repeatedly reporting the same stall. Keep monitor changes observational: the watcher itself never approves access or answers a question.

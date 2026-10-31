@@ -36,7 +36,7 @@ PYTHONPATH="$PWD/scripts${PYTHONPATH:+:$PYTHONPATH}" python examples/matplotlib-
 
 The responsive HTML example is self-contained. Matplotlib's helper uses an installed CJK font when available and falls back to DejaVu Serif; provide a suitable font through `tufte_style(extra_font_paths=[...])` when the requested script needs it.
 
-Copilot session requires Python 3.11+ and PyYAML for transcript discovery and reading. Set the examples’ `skill_dir` to its actual installation directory. Live VS Code relay additionally uses `websockets` and depends on the installed agent-host protocol. Phone alerts require a separately installed and configured adjacent `bark-notify` skill and its `requests` dependency; it is not bundled here. The monitoring service example uses Linux user systemd. Read-only snapshots do not require Bark.
+Copilot session requires Python 3.11+ and PyYAML for transcript discovery and reading. Set the examples’ `skill_dir` to its actual installation directory. Live VS Code relay additionally uses `websockets` and depends on the installed agent-host protocol. Phone alerts require a separately installed and configured adjacent `bark-notify` skill and its `requests` dependency; it is not bundled here. The monitoring service example uses Linux user systemd. Read-only snapshots do not require Bark. The watcher detects user questions, tool/path/URL permissions and plan-review prompts immediately; its focused tests run with `python -m unittest discover -s copilot-session/tests -v`. Project-session access and safe CLI relaying are covered in `copilot-session/references/cli-relay.md`.
 
 ## Contents and maintenance
 

@@ -18,6 +18,7 @@ class _Snapshot:
         self.latest_at = ""
         self.control = ""
         self.pending: dict[str, str] = {}
+        self.permissions: set[str] = set()
         self.terminal = ""
         self.turn_id = ""
 
@@ -31,12 +32,20 @@ class _Snapshot:
             self.terminal = ""
             if kind == "user.message":
                 self.pending.clear()
+                self.permissions.clear()
             self.turn_id = data.get("turnId") or self.turn_id
         elif kind == "tool.execution_start":
             self.pending[str(data.get("toolCallId"))] = data.get("toolName", "")
             self.terminal = ""
         elif kind == "tool.execution_complete":
             self.pending.pop(str(data.get("toolCallId")), None)
+        elif kind == "permission.requested":
+            request_id = data.get("requestId")
+            if request_id:
+                self.permissions.add(str(request_id))
+                self.terminal = ""
+        elif kind == "permission.completed":
+            self.permissions.discard(str(data.get("requestId")))
         elif kind == "assistant.turn_end":
             self.control = kind
             self.turn_id = data.get("turnId") or self.turn_id
@@ -52,7 +61,7 @@ class _Snapshot:
         """Distinguish a question, a stopped turn, and stale saved activity."""
         if self.terminal:
             return "error" if self.terminal == "session.error" else "ended"
-        if "ask_user" in self.pending.values():
+        if self.waiting_for() is not None:
             return "waiting"
         if not self.latest_at:
             return "unavailable"
@@ -71,10 +80,27 @@ class _Snapshot:
             return "stopped"
         return "stale" if age >= stale else "running"
 
+    def waiting_for(self) -> str | None:
+        """Describe the blocking control without retaining its private payload."""
+        if self.permissions:
+            return "permission"
+        if "ask_user" in self.pending.values():
+            return "user_answer"
+        if "exit_plan_mode" in self.pending.values():
+            return "plan_review"
+        return None
+
     def alert_key(self, status: str) -> str:
         """Allow a fresh question or stopped turn to alert even between polls."""
         if status == "waiting":
-            requests = sorted(k for k, v in self.pending.items() if v == "ask_user")
+            requests = sorted(
+                [f"permission:{key}" for key in self.permissions]
+                + [
+                    key
+                    for key, value in self.pending.items()
+                    if value in {"ask_user", "exit_plan_mode"}
+                ]
+            )
             return status + ":" + ",".join(requests)
         if status == "stopped":
             return status + ":" + self.turn_id
@@ -123,6 +149,13 @@ def _send(args: argparse.Namespace, status: str, snapshot: _Snapshot) -> dict[st
         "ended": f"{args.label} recorded {snapshot.terminal}; check the session.",
         "error": f"{args.label} recorded a session error; check the session.",
     }
+    waiting_reason = snapshot.waiting_for()
+    if status == "waiting" and waiting_reason is not None:
+        bodies[status] = {
+            "permission": f"{args.label} is blocked on tool, path, or URL access; the relay should check existing authorization.",
+            "user_answer": f"{args.label} is waiting for your answer.",
+            "plan_review": f"{args.label}'s plan is ready for review; execution has not been approved.",
+        }[waiting_reason]
     helper_path = (
         Path(__file__).resolve().parents[2] / "bark-notify/scripts/bark_notify.py"
     )
@@ -174,6 +207,7 @@ def _run(args: argparse.Namespace) -> None:
             "session_id": args.session_id,
             "status": status,
             "alert_key": key,
+            "waiting_for": snapshot.waiting_for() if status == "waiting" else None,
             "checked_at": datetime.now(timezone.utc).isoformat(),
             "latest_event_at": snapshot.latest_at,
             "notification": notification,
